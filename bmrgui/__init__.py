@@ -7,4 +7,5 @@ __license__ = 'MIT'
 
 from bmrgui.gui_rglobals import *
 from bmrgui.PageWord import *
+from bmrgui.PagePlots import *
 from bmrgui.main_page import *

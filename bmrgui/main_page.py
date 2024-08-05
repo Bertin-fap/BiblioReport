@@ -26,9 +26,14 @@ from bmgui.gui_utils import mm_to_px
 from bmgui.gui_utils import place_after
 from bmgui.gui_utils import show_frame
 from bmgui.gui_utils import str_size_mm
+from bmgui.gui_utils import set_page_title
+from bmgui.gui_utils import set_exit_button
 from bmfuncts.useful_functs import create_archi
 from bmfuncts.useful_functs import set_rawdata
 from bmrgui.PageWord import create_word_biblio
+from bmrgui.PagePlots import create_analysis
+from bmgui.gui_utils import place_bellow
+
 
 class AppMain(tk.Tk):
     """The class AppMain inherit the attributes and methods of tk.Tk.
@@ -511,60 +516,6 @@ class PageButton(tk.Frame):
 
         # Placing widgets for page button
         button.grid(row = 0, column = page_num)
-
-class QuitApp(tk.Frame):
-
-    def __init__(self, parent, master, container_button):
-
-        super().__init__(parent)
-        ################## Bouton pour sortir de la page
-        eff_button_font_size = font_size(gg.REF_BUTTON_FONT_SIZE, AppMain.width_sf_min)
-        eff_buttons_font_size    = font_size(gg.REF_ETAPE_FONT_SIZE-3, AppMain.width_sf_min)
-        exit_button_x_pos_px     = mm_to_px(gg.REF_EXIT_BUT_POS_X_MM * AppMain.width_sf_mm,  gg.PPI)
-        exit_button_y_pos_px     = mm_to_px(gg.REF_EXIT_BUT_POS_Y_MM * AppMain.height_sf_mm, gg.PPI)
-        quit_font = tkFont.Font(family = gg.FONT_NAME,
-                                size   = eff_buttons_font_size)
-
-        quit_button = tk.Button(parent,
-                                text = gg.TEXT_PAUSE,
-                                font = quit_font,
-                                command = lambda: self._launch_exit(master))
-        quit_button.place(x = exit_button_x_pos_px,
-                          y = exit_button_y_pos_px,
-                          anchor = 'n')
-
-    def _launch_exit(self,controller):
-
-        message =  "Vous allez fermer CTG_Meter. "
-        message += "\nRien ne sera perdu et vous pourrez reprendre le traitement plus tard."
-        message += "\n\nSouhaitez-vous faire une pause dans le traitement ?"
-        answer_1 = messagebox.askokcancel('Information', message)
-        if answer_1:
-            controller.destroy()
-
-class SetTitltleClass(tk.Tk):
-
-    def __init__(self, parent, page_name, institute):
-
-        label_text = ggr.PAGES_LABELS.setdefault(page_name, page_name)
-        page_title = label_text + " du " + institute
-
-        # Setting y_position in px for page label
-        eff_label_pos_y_px = mm_to_px(gg.REF_LABEL_POS_Y_MM * AppMain.height_sf_mm, gg.PPI)
-
-        eff_label_font_size  = font_size(gg.REF_LABEL_FONT_SIZE, AppMain.width_sf_min)
-        # Setting x position in pixels for page label
-        mid_page_pos_x_px = AppMain.win_width_px / 2
-
-
-        label_font = tkFont.Font(family = gg.FONT_NAME,
-                                 size   = eff_label_font_size)
-        label = tk.Label(parent,
-                         text = page_title,
-                         font = label_font)
-        label.place(x = mid_page_pos_x_px,
-                    y = eff_label_pos_y_px,
-                    anchor = "center")
             
 class Word(tk.Frame):
     """PAGE 1 'Analyse élémentaire des corpus'.
@@ -581,9 +532,9 @@ class Word(tk.Frame):
 
         # Creating and setting widgets for page frame
         create_word_biblio(self, master, page_name, institute, bibliometer_path, datatype)
-        settitleclass = SetTitltleClass(self,page_name,institute)
         
-        quitapp = QuitApp(self, master, pagebutton_frame)
+        set_page_title(self, master, page_name, institute, datatype)
+        set_exit_button(self, master)
 
 class Plots(tk.Frame):
     """PAGE 2 'Consolidation annuelle des corpus'.
@@ -599,7 +550,7 @@ class Plots(tk.Frame):
         PageButton(master, page_name, pagebutton_frame)
 
         # Creating and setting widgets for page frame
-        #create_consolidate_corpus(self, master, page_name, institute, bibliometer_path, datatype)
-        settitleclass = SetTitltleClass(self,page_name,institute)
+        create_analysis(self, master, page_name, institute, bibliometer_path, datatype)
         
-        quitapp = QuitApp(self, master, pagebutton_frame)
+        set_page_title(self, master, page_name, institute, datatype)
+        set_exit_button(self, master)
