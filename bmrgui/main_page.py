@@ -14,8 +14,8 @@ from pathlib import Path
 from screeninfo import get_monitors
 
 # Local imports
-import bmgui.gui_globals as gg
-import bmrgui.gui_rglobals as ggr
+
+import bmrgui.gui_rglobals as gg
 import bmfuncts.institute_globals as ig
 import bmfuncts.pub_globals as pg
 from bmgui.gui_utils import existing_corpuses
@@ -33,7 +33,10 @@ from bmfuncts.useful_functs import set_rawdata
 from bmrgui.PageWord import create_word_biblio
 from bmrgui.PagePlots import create_analysis
 from bmgui.gui_utils import place_bellow
-
+from bmgui.main_page import SetMasterTitle
+from bmgui.main_page import SetAuthorCopyright
+from bmgui.main_page import PageButton
+from bmgui.main_page import SetLaunchButton
 
 class AppMain(tk.Tk):
     """The class AppMain inherit the attributes and methods of tk.Tk.
@@ -277,7 +280,7 @@ class AppMain(tk.Tk):
 
         # Getting useful screen sizes and scale factors depending on displays properties
         sizes_tuple = general_properties(self)
-        self.title(ggr.APPLICATION_WINDOW_TITLE)
+        self.title(gg.APPLICATION_WINDOW_TITLE)
         AppMain.win_width_px  = sizes_tuple[0]
         AppMain.win_height_px = sizes_tuple[1]
         AppMain.width_sf_px   = sizes_tuple[2]
@@ -348,174 +351,6 @@ class AppMain(tk.Tk):
         # Tracing Institute selection
         institute_val.trace('w', partial(_update_page, institute_widget = institute_val))
 
-class SetMasterTitle():
-    """
-
-    """
-    def __init__(self, master):
-
-        # Setting widget parameters for page title
-        eff_page_title_font_size = font_size(gg.REF_PAGE_TITLE_FONT_SIZE, master.width_sf_min)
-        eff_page_title_pos_y_px  = mm_to_px(gg.REF_PAGE_TITLE_POS_Y_MM * master.height_sf_mm,
-                                            gg.PPI)
-        mid_page_pos_x_px = master.win_width_px * 0.5
-
-        # Creating widget for page title
-        page_title = tk.Label(master,
-                              text = gg.TEXT_TITLE,
-                              font = (gg.FONT_NAME, eff_page_title_font_size),
-                              justify = "center")
-
-        # Placing widget for page title
-        page_title.place(x = mid_page_pos_x_px,
-                         y = eff_page_title_pos_y_px,
-                         anchor = "center")
-
-class SetAuthorCopyright():
-    """
-
-    """
-    def __init__(self, master):
-
-        # Setting widgets parameters for copyright
-        eff_copyright_font_size = font_size(gg.REF_COPYRIGHT_FONT_SIZE, master.width_sf_min)
-        eff_version_font_size   = font_size(gg.REF_VERSION_FONT_SIZE, master.width_sf_min)
-        eff_copyright_x_px = mm_to_px(gg.REF_COPYRIGHT_X_MM * master.width_sf_mm, gg.PPI)
-        eff_copyright_y_px = mm_to_px(gg.REF_COPYRIGHT_Y_MM * master.height_sf_mm, gg.PPI)
-        eff_version_x_px = mm_to_px(gg.REF_VERSION_X_MM * master.width_sf_mm, gg.PPI)
-        eff_version_y_px = mm_to_px(gg.REF_COPYRIGHT_Y_MM * master.height_sf_mm, gg.PPI)
-
-        # Creating widgets for copyright
-        auteurs_font_label = tkFont.Font(family = gg.FONT_NAME,
-                                         size   = eff_copyright_font_size,)
-        auteurs_label = tk.Label(master,
-                                 text = gg.TEXT_COPYRIGHT,
-                                 font = auteurs_font_label,
-                                 justify = "left")
-        version_font_label = tkFont.Font(family = gg.FONT_NAME,
-                                         size = eff_version_font_size,
-                                         weight = 'bold')
-        version_label = tk.Label(master,
-                                 text = gg.TEXT_VERSION,
-                                 font = version_font_label,
-                                 justify = "right")
-
-        # Placing widgets for copyright
-        auteurs_label.place(x = eff_copyright_x_px,
-                            y = eff_copyright_y_px,
-                            anchor = "sw")
-        version_label.place(x = eff_version_x_px,
-                            y = eff_version_y_px,
-                            anchor = "sw")
-
-class SetLaunchButton(tk.Tk):
-    """
-
-    """
-    def __init__(self, master, institute, bibliometer_path, datatype):
-
-        tk.Frame.__init__(self)
-
-        # Setting font size for launch button
-        eff_launch_font_size = font_size(gg.REF_LAUNCH_FONT_SIZE, master.width_sf_min)
-
-        # Setting x and y position in pixels for launch button
-        launch_but_pos_x_px = master.win_width_px  * 0.5
-        launch_but_pos_y_px = master.win_height_px * 0.8
-
-        # Setting launch button
-        launch_font = tkFont.Font(family = gg.FONT_NAME,
-                                  size   = eff_launch_font_size,
-                                  weight = 'bold')
-        launch_button = tk.Button(master,
-                                  text = gg.TEXT_BOUTON_LANCEMENT,
-                                  font = launch_font,
-                                  command = lambda: self._generate_pages(master,
-                                                                         institute,
-                                                                         bibliometer_path,
-                                                                         datatype))
-        # Placing launch button
-        launch_button.place(x = launch_but_pos_x_px,
-                            y = launch_but_pos_y_px,
-                            anchor = "s")
-
-    def _generate_pages(self, master, institute, bibliometer_path, datatype):
-        """Permet la génération des pages après spécification du chemin
-        vers la zone de stockage.
-        Vérifie qu'un chemin a été renseigné et continue le cas échant,
-        sinon redemande de renseigner un chemin.
-        """
-
-        if bibliometer_path == '':
-            warning_title = "!!! Attention !!!"
-            warning_text =  "Chemin non renseigné."
-            warning_text += "\nL'application ne peut pas être lancée."
-            warning_text += "\nVeuillez le définir."
-            messagebox.showwarning(warning_title, warning_text)
-
-        else:
-            # Setting years list
-            master.years_list = last_available_years(bibliometer_path,
-                                                       gg.CORPUSES_NUMBER)
-
-            # Setting rawdata for datatype
-            for database in pg.BDD_LIST:
-                _ = set_rawdata(bibliometer_path, datatype,
-                                master.years_list, database)
-
-            # Setting existing corpuses status
-            files_status = existing_corpuses(bibliometer_path)
-            master.list_corpus_year    = files_status[0]
-            master.list_wos_rawdata    = files_status[1]
-            master.list_wos_parsing    = files_status[2]
-            master.list_scopus_rawdata = files_status[3]
-            master.list_scopus_parsing = files_status[4]
-            master.list_dedup          = files_status[5]
-
-            # Creating two frames in the tk window
-            pagebutton_frame = tk.Frame(master, bg = 'red',
-                                        height = gg.PAGEBUTTON_HEIGHT_PX)
-            pagebutton_frame.pack(side = "top", fill = "both", expand = False)
-
-            page_frame = tk.Frame(master)
-            page_frame.pack(side = "top", fill = "both", expand = True)
-            page_frame.grid_rowconfigure(0, weight = 1)
-            page_frame.grid_columnconfigure(0, weight = 1)
-
-            self.frames = {}
-            for page in master.pages:
-                page_name = page.__name__
-                frame = page(master, pagebutton_frame, page_frame,
-                             institute, bibliometer_path, datatype)
-                self.frames[page_name] = frame
-
-                # Putting all of the pages in the same location
-                # The one visible is the one on the top of the stacking order
-                frame.grid(row = 0, column = 0, sticky = "nsew")
-            master.frames = self.frames
-
-class PageButton(tk.Frame):
-    """
-    """
-    def __init__(self, master, page_name, pagebutton_frame):
-
-        # Setting page num
-        label_text = ggr.PAGES_LABELS[page_name]
-        page_num = master.pages_ordered_list.index(page_name)
-
-        # Setting widgets parameters for page button
-        eff_button_font_size = font_size(gg.REF_BUTTON_FONT_SIZE, master.width_sf_min)
-
-        # Creating widgets for page button
-        button_font = tkFont.Font(family = gg.FONT_NAME,
-                                  size   = eff_button_font_size)
-        button = tk.Button(pagebutton_frame,
-                           text = label_text,
-                           font = button_font,
-                           command = lambda: show_frame(master, page_name))
-
-        # Placing widgets for page button
-        button.grid(row = 0, column = page_num)
             
 class Word(tk.Frame):
     """PAGE 1 'Analyse élémentaire des corpus'.

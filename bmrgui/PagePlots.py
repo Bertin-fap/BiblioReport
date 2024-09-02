@@ -19,8 +19,7 @@ import plotly.offline as py
 import plotly.graph_objs as go
 
 # Local imports
-import bmgui.gui_globals as gg
-import bmrgui.gui_rglobals as ggr
+import bmrgui.gui_rglobals as gg
 import bmfuncts.pub_globals as pg
 from bmgui.gui_utils import font_size
 from bmgui.gui_utils import mm_to_px
@@ -98,14 +97,15 @@ def _plot_countries_analysis(year,biblio_path):
                 colorscale = 'Portland',
                 autocolorscale = False,
                 marker = dict(line = dict (color = 'rgb(255,255,255)', width = 1)),
-                z=nbr_articles_per_country)
+                z=nbr_articles_per_country,
+                colorbar = {'title':'# Publications'})
     
     map = go.Figure(data=[data], layout=layout)
-    #py.plot(map)
+    py.plot(map)
     html_path = biblio_path / Path(str(year)) / Path("5 - Analyses")/ Path('Géographique') / Path('Statistiques par pays.html')
     map.write_html(str(html_path)) 
     # show file 
-    webbrowser.open(html_path)    
+    #webbrowser.open(html_path)    
 
 
 def create_analysis(self, master, page_name, institute, bibliometer_path, datatype):
@@ -233,7 +233,7 @@ def create_analysis(self, master, page_name, institute, bibliometer_path, dataty
                                    size=eff_etape_font_size,
                                    weight='bold')
     if_analysis_label = tk.Label(self,
-                                 text=ggr.TEXT_IFPLOT,
+                                 text=gg.TEXT_IFPLOT,
                                  justify=etape_label_format,
                                  font=if_analysis_font,
                                  underline=etape_underline)
@@ -264,7 +264,7 @@ def create_analysis(self, master, page_name, institute, bibliometer_path, dataty
     
     ## - Creating departement selection label
     Label_if = tk.Label(self,
-                        text=ggr.TEXT_DEPT,
+                        text=gg.TEXT_DEPT,
                         font=help_label_font)
                           
     # - Creating departement button option
@@ -274,11 +274,11 @@ def create_analysis(self, master, page_name, institute, bibliometer_path, dataty
     OptionButton_dep_if.config(font=self.font_OptionButton_years)
     
     place_bellow(help_label_if, Label_if, dy=30)
-    place_after(Label_if, OptionButton_dep_if, dy=dy_year)
+    place_after(Label_if, OptionButton_dep_if, dy=-5)
     
         ## - Creating mode selection label
     Label_mode = tk.Label(self,
-                          text=ggr.TEXT_MODE,
+                          text=gg.TEXT_MODE,
                           font=help_label_font)
                           
     # - Creating mode button option
@@ -287,14 +287,14 @@ def create_analysis(self, master, page_name, institute, bibliometer_path, dataty
                                          *mode_list)
     OptionButton_mode_if.config(font=self.font_OptionButton_years)
     
-    place_after(OptionButton_dep_if, Label_mode, dx=50, dy=10)
-    place_after(Label_mode, OptionButton_mode_if, dx=10, dy=-10)
+    place_after(OptionButton_dep_if, Label_mode, dx=50, dy=5)
+    place_after(Label_mode, OptionButton_mode_if, dx=10, dy=0)
 
     # - Setting launch button
     if_analysis_launch_font = tkFont.Font(family=gg.FONT_NAME,
                                           size=eff_launch_font_size)
     if_analysis_launch_button = tk.Button(self,
-                                          text=ggr.TEXT_IF_ANALYSIS,
+                                          text=gg.TEXT_IF_ANALYSIS,
                                           font=if_analysis_launch_font,
                                           command= _launch_if_analysis_try)
     place_after(OptionButton_mode_if,
@@ -311,7 +311,7 @@ def create_analysis(self, master, page_name, institute, bibliometer_path, dataty
                                          size=eff_etape_font_size,
                                          weight='bold')
     co_analysis_label = tk.Label(self,
-                                 text=ggr.TEXT_GEOPLOT,
+                                 text=gg.TEXT_GEOPLOT,
                                  justify="left",
                                  font=co_analysis_label_font)
     place_bellow(Label_if,
@@ -333,7 +333,7 @@ def create_analysis(self, master, page_name, institute, bibliometer_path, dataty
     co_analysis_launch_font = tkFont.Font(family=gg.FONT_NAME,
                                           size=eff_launch_font_size)
     co_analysis_launch_button = tk.Button(self,
-                                          text = ggr.BUTT_GEOPLOT,
+                                          text = gg.BUTT_GEOPLOT,
                                           font = co_analysis_launch_font,
                                           command = _launch_coupling_analysis_try)
     place_bellow(help_label_if,
@@ -350,7 +350,7 @@ def create_analysis(self, master, page_name, institute, bibliometer_path, dataty
                                          size = eff_etape_font_size,
                                          weight = 'bold')
     kw_analysis_label = tk.Label(self,
-                                 text=ggr.TEXT_WORDCLOUD,
+                                 text=gg.TEXT_WORDCLOUD,
                                  justify="left",
                                  font=kw_analysis_label_font)
     place_bellow(co_analysis_launch_button,
@@ -377,7 +377,7 @@ def create_analysis(self, master, page_name, institute, bibliometer_path, dataty
     
     # - Creating departement selection label
     Label_dep = tk.Label(self,
-                         text=ggr.TEXT_DEPT,
+                         text=gg.TEXT_DEPT,
                          font=help_label_font)
                           
     # - Creating departement button option
@@ -393,7 +393,7 @@ def create_analysis(self, master, page_name, institute, bibliometer_path, dataty
     
     # - Creating keyword selection label
     Label_kw = tk.Label(self,
-                        text=ggr.TEXT_KW,
+                        text=gg.TEXT_KW,
                         font=help_label_font)
                          
     # Creating and setting keywords selection widgets
@@ -416,7 +416,7 @@ def create_analysis(self, master, page_name, institute, bibliometer_path, dataty
     kw_analysis_launch_font = tkFont.Font(family=gg.FONT_NAME,
                                           size=eff_launch_font_size)
     kw_analysis_launch_button = tk.Button(self,
-                                          text=ggr.TEXT_KW_ANALYSIS,
+                                          text=gg.TEXT_KW_ANALYSIS,
                                           font=kw_analysis_launch_font,
                                           command= _launch_kw_plot)
     place_after(OptionButton_kw,
