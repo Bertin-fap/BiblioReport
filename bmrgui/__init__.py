@@ -9,3 +9,4 @@ from bmrgui.gui_rglobals import *
 from bmrgui.PageWord import *
 from bmrgui.PagePlots import *
 from bmrgui.main_page import *
+from bmrgui.gui_rutils import *

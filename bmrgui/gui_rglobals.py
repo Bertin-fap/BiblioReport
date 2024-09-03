@@ -20,6 +20,11 @@ __all__ = ['ADD_SPACE_MM',
            'REF_ETAPE_FONT_SIZE',
            'REF_INST_POS_X_MM',
            'REF_INST_POS_Y_MM',
+           'REF_LABEL_DX_Y_MM',
+           'REF_LABEL_FONT_SIZE',
+           'REF_LABEL_POS_Y_MM',
+           'REF_PAGE_TITLE_FONT_SIZE',
+           'REF_PAGE_TITLE_POS_Y_MM',
            'REF_SUB_TITLE_FONT_SIZE',
            'REF_YEAR_BUT_POS_X_MM',
            'REF_YEAR_BUT_POS_Y_MM',
@@ -37,7 +42,8 @@ __all__ = ['ADD_SPACE_MM',
            'TEXT_WORDCLOUD',
            'TEXT_IFPLOT',
            'TEXT_MODE',
-           'TEXT_IF_ANALYSIS',]
+           'TEXT_IF_ANALYSIS',
+           'TEXT_TITLE',]
            
 import bmgui.gui_globals as ggr
 
@@ -68,6 +74,13 @@ REF_YEAR_BUT_POS_Y_MM = ggr.REF_YEAR_BUT_POS_Y_MM
 HELP_ETAPE_7 = ggr.HELP_ETAPE_7
 HELP_ETAPE_8 = ggr.HELP_ETAPE_8
 HELP_ETAPE_9 = ggr.HELP_ETAPE_9
+REF_PAGE_TITLE_FONT_SIZE = ggr.REF_PAGE_TITLE_FONT_SIZE
+REF_PAGE_TITLE_POS_Y_MM = ggr.REF_PAGE_TITLE_POS_Y_MM
+TEXT_TITLE = "- BiblioReport -\nInitialisation de l'analyse"
+REF_LABEL_FONT_SIZE = ggr.REF_LABEL_FONT_SIZE
+REF_LABEL_POS_Y_MM = ggr.REF_LABEL_POS_Y_MM
+REF_LABEL_DX_Y_MM = ggr.REF_LABEL_DX_Y_MM
+
 
 PAGES_LABELS = dict(Word="Bibliographie Word",
                     Plots="KPI plots")

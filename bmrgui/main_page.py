@@ -26,16 +26,14 @@ from bmgui.gui_utils import mm_to_px
 from bmgui.gui_utils import place_after
 from bmgui.gui_utils import show_frame
 from bmgui.gui_utils import str_size_mm
-from bmgui.gui_utils import set_page_title
+from bmrgui.gui_rutils import set_page_title
 from bmgui.gui_utils import set_exit_button
 from bmfuncts.useful_functs import create_archi
 from bmfuncts.useful_functs import set_rawdata
 from bmrgui.PageWord import create_word_biblio
 from bmrgui.PagePlots import create_analysis
 from bmgui.gui_utils import place_bellow
-from bmgui.main_page import SetMasterTitle
 from bmgui.main_page import SetAuthorCopyright
-from bmgui.main_page import PageButton
 from bmgui.main_page import SetLaunchButton
 
 class AppMain(tk.Tk):
@@ -350,7 +348,52 @@ class AppMain(tk.Tk):
 
         # Tracing Institute selection
         institute_val.trace('w', partial(_update_page, institute_widget = institute_val))
+        
+class PageButton(tk.Frame):
+    """
+    """
+    def __init__(self, master, page_name, pagebutton_frame):
 
+        # Setting page num
+        label_text = gg.PAGES_LABELS[page_name]
+        page_num = master.pages_ordered_list.index(page_name)
+
+        # Setting widgets parameters for page button
+        eff_button_font_size = font_size(gg.REF_BUTTON_FONT_SIZE, master.width_sf_min)
+
+        # Creating widgets for page button
+        button_font = tkFont.Font(family = gg.FONT_NAME,
+                                  size   = eff_button_font_size)
+        button = tk.Button(pagebutton_frame,
+                           text = label_text,
+                           font = button_font,
+                           command = lambda: show_frame(master, page_name))
+
+        # Placing widgets for page button
+        button.grid(row = 0, column = page_num)
+        
+class SetMasterTitle():
+    """
+
+    """
+    def __init__(self, master):
+
+        # Setting widget parameters for page title
+        eff_page_title_font_size = font_size(gg.REF_PAGE_TITLE_FONT_SIZE, master.width_sf_min)
+        eff_page_title_pos_y_px  = mm_to_px(gg.REF_PAGE_TITLE_POS_Y_MM * master.height_sf_mm,
+                                            gg.PPI)
+        mid_page_pos_x_px = master.win_width_px * 0.5
+
+        # Creating widget for page title
+        page_title = tk.Label(master,
+                              text = gg.TEXT_TITLE,
+                              font = (gg.FONT_NAME, eff_page_title_font_size),
+                              justify = "center")
+
+        # Placing widget for page title
+        page_title.place(x = mid_page_pos_x_px,
+                         y = eff_page_title_pos_y_px,
+                         anchor = "center")
             
 class Word(tk.Frame):
     """PAGE 1 'Analyse élémentaire des corpus'.
