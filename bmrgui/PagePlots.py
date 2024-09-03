@@ -5,6 +5,7 @@ impact factors, keywords and coupling analysis.
 __all__ = ['create_analysis']
 
 # Standard library imports
+import os
 import tkinter as tk
 from pathlib import Path
 from tkinter import font as tkFont
@@ -130,18 +131,29 @@ def create_analysis(self, master, page_name, institute, bibliometer_path, dataty
         extention = variable_mode.get()
         path_png = kw_path = bibliometer_path / Path(variable_years.get()) / Path('5 - Analyses\IFs')
         if extention == 'png':
-            file = f'IF {year_select}-{dep_select}.png'
-            path_png = path_png / Path(file)
-            img = mpimg.imread(path_png)
-            imgplot = plt.imshow(img)
-            plt.title(f'Année: {year_select}, Départemement: {dep_select}\n')
-            plt.show()
+            files_list = os.listdir(path_png)
+            files_png = [file for file in files_list if file.endswith('.png') and dep_select in file]
+            if files_png:
+                path_png = path_png / Path(files_png[0])
+                img = mpimg.imread(path_png)
+                imgplot = plt.imshow(img)
+                plt.title(f'Année: {year_select}, Départemement: {dep_select}\n')
+                plt.axis('off')
+                plt.show()
+            else:
+                messagebox.showwarning("Plot IF", f"Sorry unable to find a .png files corresponding to {dep_select}")
+                
         elif extention == "HTML":
-            file = f'IF {year_select}-{dep_select}.html'
-            path_html = path_png / Path(file)
-            webbrowser.open(path_html) 
+            files_list = os.listdir(path_png)
+            files_html = [file for file in files_list if file.endswith('.html') and dep_select in file]
+            if files_html:
+                path_html = path_png / Path(files_html[0])
+                webbrowser.open(path_html) 
+            else:
+                messagebox.showwarning("Plot IF", f"Sorry unable to find a .html files corresponding to {dep_select}")
+                
               
-        print(f"\nIFs analysis launched for year {year_select}")
+        #print(f"\nIFs analysis launched for year {year_select}")
         
 
     def _launch_kw_plot():
@@ -153,13 +165,17 @@ def create_analysis(self, master, page_name, institute, bibliometer_path, dataty
         path_png = kw_path = bibliometer_path / Path(variable_years.get()) / Path('5 - Analyses\Mots clefs')
         file = f'{kw_select}{year_select}-{dep_select}.png'
         path_png = path_png / Path(file)
-        img = mpimg.imread(path_png)
-        imgplot = plt.imshow(img)
-        plt.title(f'Année: {year_select}, Départemement: {dep_select}, Mot-clé: {kw_select}\n')
-        plt.show()
+        if os.path.exists(path_png):
+            img = mpimg.imread(path_png)
+            imgplot = plt.imshow(img)
+            plt.title(f'Année: {year_select}, Départemement: {dep_select}, Mot-clé: {kw_select}\n')
+            plt.axis('off')
+            plt.show()
+        else:
+            messagebox.showwarning("Plot KW", f"Sorry unable to find a .png files corresponding to {dep_select}")
         
 
-        print(f"Keywords analysis launched for year {year_select}, kw {kw_select}, departement {dep_select}")
+        #print(f"Keywords analysis launched for year {year_select}, kw {kw_select}, departement {dep_select}")
 
     def _launch_coupling_analysis_try():
         # Getting year selection
