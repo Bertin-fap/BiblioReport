@@ -32,6 +32,7 @@ from bmfuncts.pub_analysis import coupling_analysis
 from bmfuncts.pub_analysis import keywords_analysis
 from bmfuncts.config_utils import set_org_params
 from bmrfuncts.bmr_utils import parse_kw_filename
+from bmrfuncts.bmr_utils import create_kw_cloud
 
 # Standard library imports
 import pathlib
@@ -157,23 +158,14 @@ def create_analysis(self, master, page_name, institute, bibliometer_path, dataty
         
 
     def _launch_kw_plot():
-        # Getting year selection
+        # Getting year selection, keyword selection and departement selection
         year_select = variable_years.get()
         kw_select = variable_kw.get()
         dep_select = variable_dep.get()
         
-        path_png = kw_path = bibliometer_path / Path(variable_years.get()) / Path('5 - Analyses\Mots clefs')
-        file = f'{kw_select}{year_select}-{dep_select}.png'
-        path_png = path_png / Path(file)
-        if os.path.exists(path_png):
-            img = mpimg.imread(path_png)
-            imgplot = plt.imshow(img)
-            plt.title(f'Année: {year_select}, Départemement: {dep_select}, Mot-clé: {kw_select}\n')
-            plt.axis('off')
-            plt.show()
-        else:
-            messagebox.showwarning("Plot KW", f"Sorry unable to find a .png files corresponding to {dep_select}")
         
+        create_kw_cloud(institute, year_select, kw_select, dep_select, bibliometer_path,
+                        verbose = False)
 
         #print(f"Keywords analysis launched for year {year_select}, kw {kw_select}, departement {dep_select}")
 
@@ -200,6 +192,7 @@ def create_analysis(self, master, page_name, institute, bibliometer_path, dataty
     year_button_x_pos = mm_to_px(gg.REF_YEAR_BUT_POS_X_MM * master.width_sf_mm, gg.PPI)     # 10
     year_button_y_pos = mm_to_px(gg.REF_YEAR_BUT_POS_Y_MM * master.height_sf_mm, gg.PPI)    # 26
     dy_year = -6
+    
 
     # Setting common attributes
     etape_label_format = 'left'
@@ -269,7 +262,10 @@ def create_analysis(self, master, page_name, institute, bibliometer_path, dataty
                  
         # Creating and setting department selection widgets
     if_path = bibliometer_path / Path(variable_years.get()) / Path('5 - Analyses\IFs')
-    if_tup = parse_kw_filename(if_path)
+    if_tup = parse_kw_filename(bibliometer_path,
+                               variable_years.get().strip(),
+                               'IF',
+                               '.xlsx') # kw list of nametuples kw.dep, kw.year, kw.kw
     default_dep_if = if_tup.dep[-1]
     variable_dep_if = tk.StringVar(self)
     variable_dep_if.set(default_dep_if)
@@ -385,8 +381,10 @@ def create_analysis(self, master, page_name, institute, bibliometer_path, dataty
                  help_label_kw)
                  
     # Creating and setting department selection widgets
-    kw_path = bibliometer_path / Path(variable_years.get()) / Path('5 - Analyses\Mots clefs')
-    kw = parse_kw_filename(kw_path)
+    kw = parse_kw_filename(bibliometer_path,
+                           variable_years.get().strip(),
+                           'KW',
+                           '.xlsx') # kw list of nametuples kw.dep, kw.year, kw.kw
     default_dep = kw.dep[-1]
     variable_dep = tk.StringVar(self)
     variable_dep.set(default_dep)
