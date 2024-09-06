@@ -1,6 +1,7 @@
 __all__ = ['create_kw_cloud',
            'parse_kw_filename',
-           'plot_countries_analysis']
+           'plot_countries_analysis',
+           'plot_if_analysis']
 
 # Standard library imports
 import os
@@ -22,6 +23,7 @@ import plotly.graph_objs as go
 import bmrgui.gui_rglobals as gg
 from bmfuncts.rename_cols import set_final_col_names
 from bmfuncts.config_utils import set_org_params
+from bmfuncts.rename_cols import set_final_col_names
 
 
 
@@ -42,7 +44,6 @@ def parse_kw_filename(bibliometer_path, year, metric, extension):
     # Setting useful paths
     year_folder_path        = bibliometer_path / Path(str(year))
     pub_list_folder_path    = year_folder_path / Path(pub_list_folder_alias)
-    #pub_list_file_path      = pub_list_folder_path / Path(pub_list_filename)
     analysis_folder_path    = year_folder_path / Path(analysis_folder_alias)
     kw_analysis_folder_path = analysis_folder_path / Path(kw_analysis_folder_alias)
     if_analysis_folder_path = analysis_folder_path / Path(if_analysis_folder_alias)
@@ -74,9 +75,32 @@ def parse_kw_filename(bibliometer_path, year, metric, extension):
     
     return kw
     
+def select_if_file(year,dep,bibliometer_path):
+    
+    '''selects the articles impact factor .xlsx file of year `year` witch contain the departement aconym `dep'''
+    
+    # Setting aliases
+    analysis_folder_alias    = pg.ARCHI_YEAR["analyses"]
+    if_analysis_folder_alias = pg.ARCHI_YEAR["if analysis"]
+    
+    # Setting useful paths
+    year_folder_path        = bibliometer_path / Path(str(year))
+    analysis_folder_path    = year_folder_path / Path(analysis_folder_alias)
+    if_analysis_folder_path = analysis_folder_path / Path(if_analysis_folder_alias)
+    
+    files = [x for x in os.listdir(if_analysis_folder_path) 
+                 if x.endswith(".xlsx") and dep in x]
+    if files:
+        dept_xlsx_file_path = Path(if_analysis_folder_path) / Path(files[0])
+        return dept_xlsx_file_path
+    else:
+        print(f'file not found')
+    
+    
+    
 def create_kw_cloud(institute, year, kw_type, dep, bibliometer_path,
                      verbose = False):
-    """
+    """Creates a wordcloud of the keywords.
     """
     # Setting useful aliases
     org_tup = set_org_params(institute, bibliometer_path)
@@ -187,15 +211,16 @@ def plot_countries_analysis(year,bibliometer_path):
     # Setting useful paths
     year_folder_path         = bibliometer_path / Path(str(year))
     analysis_folder_path     = year_folder_path / Path(analysis_folder_alias)
-    geo_analysis_folder_path = analysis_folder_path / Path(geo_folder_alias)
+    geo_analysis_folder_path = analysis_folder_path / Path(geo_folder_alias) 
     geo_file                 = geo_analysis_folder_path / Path('Statistiques par pays.xlsx')
+    html_path                = geo_analysis_folder_path/ Path('Statistiques par pays.html')
     
     countries= pd.read_excel(geo_file,engine="openpyxl")
     countries['Code'] = countries['Pays'].map(gg.DIC_CODE_COUNTRIES)
     countries['number_publis'] =  countries.apply(lambda row: len(row['Liste des Pub_ids'].split(';')),axis=1)
-    
-                                                                              
-    list_countries,nbr_articles_per_country = countries['Code'] .tolist(),  countries['number_publis'].tolist()
+                                                                            
+    list_countries           = countries['Code'] .tolist() 
+    nbr_articles_per_country = countries['number_publis'].tolist()
     
     layout = dict(geo={'scope': 'world'})
     
@@ -209,8 +234,220 @@ def plot_countries_analysis(year,bibliometer_path):
                 colorbar = {'title':'# Publications'})
     
     map = go.Figure(data=[data], layout=layout)
-    py.plot(map)
-    html_path = bibliometer_path / Path(str(year)) / Path("5 - Analyses")/ Path('Géographique') / Path('Statistiques par pays.html')
     map.write_html(str(html_path)) 
     # show file 
-    webbrowser.open(html_path) 
+    webbrowser.open(html_path)
+    
+
+def reads_kpi_dict(institute, bibliometer_path, corpus_year, org_tup, dept, datatype):
+    
+    # Setting aliases for updating KPIs database
+    results_root_alias       = pg.ARCHI_RESULTS["root"]
+    results_folder_alias     = pg.ARCHI_RESULTS[datatype]
+    results_sub_folder_alias = pg.ARCHI_RESULTS["kpis"]
+    kpi_file_base_alias      = pg.ARCHI_RESULTS["kpis file name base"]
+
+    # Setting paths for saving results
+    results_root_path        = bibliometer_path / Path(results_root_alias)
+    results_folder_path      = results_root_path / Path(results_folder_alias)
+    results_kpis_folder_path = results_folder_path / Path(results_sub_folder_alias)
+    
+    filename = dept + "_" + kpi_file_base_alias + ".xlsx"
+    file_path = results_kpis_folder_path / Path(filename)
+    
+    kpi_df = pd.read_excel(file_path)
+    kpi_dic= dict(zip(kpi_df['Année de publication'],kpi_df[corpus_year]))
+    kpi_dic = {"Année de publication":corpus_year} | kpi_dic
+    
+    return kpi_dic    
+
+def _builds_if_bargraph_title(kpi_dict,
+                              dept,
+                              corpus_year,
+                              if_col,
+                              part):
+    
+    '''Builds the bargraph title from the kpi metrics'''
+    
+    # Setting useful values for barchart plot and title
+    nb_journals          = kpi_dict[pg.KPI_KEYS_ORDER_DICT[7]]
+    nb_articles          = kpi_dict[pg.KPI_KEYS_ORDER_DICT[11]]
+    articles_per_journal = kpi_dict[pg.KPI_KEYS_ORDER_DICT[12]]
+    if_max               = kpi_dict[pg.KPI_KEYS_ORDER_DICT[15]]
+    if_min               = kpi_dict[pg.KPI_KEYS_ORDER_DICT[16]]
+    if_moyen             = kpi_dict[pg.KPI_KEYS_ORDER_DICT[17]]
+    wo_if_ratio          = kpi_dict[pg.KPI_KEYS_ORDER_DICT[19]]
+
+    # Setting the first part of the barchart title
+    title_base  = (f"{dept} corpus {corpus_year}: "
+                   f"Journals = {nb_journals}, Articles = {nb_articles}, "
+                   f"Articles/Journal = {articles_per_journal: .1f}")
+
+    # Completing the barchart title
+    if_values = if_col
+    if part != "all":
+        if_values += " " + part + " half"
+
+    title_add = ("<br>" + f"{if_values}: IF max = {if_max:.1f}, IF min = {if_min:.1f}, "
+                 f"IF mean = {if_moyen:.1f}, Articles w/o IF = {wo_if_ratio:.0f} %" + "<br>")
+    title = title_base + title_add
+
+    return title    
+    
+def _create_if_barchart(corpus_year,
+                        dept,
+                        if_df,
+                        if_col, 
+                        kpi_dict,
+                        journal_col_alias,
+                        part = "all"):
+    """
+    """
+
+    # internal functions
+    def _short_journal_name(max_journal_short_name):
+        return lambda x: (x[:max_journal_short_name] + '...'
+                          if len(x) > max_journal_short_name else x)
+
+    # Setting new col names and related parameters
+    journal_short_col_alias = pg.COL_NAMES_IF_ANALYSIS['journal_short']
+    articles_nb_col_alias   = pg.COL_NAMES_IF_ANALYSIS['articles_nb']
+    max_journal_short_name  = pg.BAR_Y_LABEL_MAX
+
+    # Creating columns with shortnames of journals for barchart plots
+    plot_df = if_df.copy()
+    plot_df[journal_short_col_alias] = plot_df[journal_col_alias].\
+        apply(_short_journal_name(max_journal_short_name))
+
+    title = _builds_if_bargraph_title(kpi_dict,
+                                      dept,
+                                      corpus_year,
+                                      if_col,
+                                      part)
+
+    # Setting barchart parameters
+    labels_dict       = {articles_nb_col_alias  : 'Articles number',
+                         journal_short_col_alias: 'Short name'}
+    nb_articles_range = pg.BAR_X_RANGE
+    barchart_width    = pg.BAR_WIDTH
+    barchart_height   = pg.BAR_HEIGHT
+    nb_journals       = kpi_dict[pg.KPI_KEYS_ORDER_DICT[7]]
+    if nb_journals <= pg.BAR_Y_MAX or part != "all":
+        barchart_height = round(pg.BAR_HEIGHT / pg.BAR_HEIGHT_RATIO)
+    color_range       = pg.BAR_COLOR_RANGE
+    color_scale       = pg.BAR_COLOR_SCALE
+
+    barchart = px.bar(data_frame             = plot_df,
+                      x                      = articles_nb_col_alias,
+                      y                      = journal_short_col_alias,
+                      orientation            = 'h',
+                      title                  = title,
+                      color                  = if_col,
+                      color_continuous_scale = color_scale,
+                      range_color            = color_range,
+                      labels                 = labels_dict,
+                      width                  = barchart_width,
+                      height                 = barchart_height,
+                      hover_name             = journal_col_alias,
+                      hover_data             = {journal_short_col_alias: False,
+                                                if_col: ':.1f'},
+                      range_x                = nb_articles_range,)
+    barchart.show()
+    return barchart
+    
+def _save_dept_barchart(barchart, dept, if_col, if_analysis_folder_path, part = "all"):
+    """
+    """
+
+    file_name = f"{if_col}-{dept}"
+    if part != "all":
+        file_name += f"_{part}"
+
+    dept_html_file_path = Path(if_analysis_folder_path) / Path(file_name + ".html")
+    barchart.write_html(dept_html_file_path)
+
+    dept_png_file_path  = Path(if_analysis_folder_path) / Path(file_name + ".png")
+    barchart.write_image(dept_png_file_path)
+
+    end_message  = (f"\n    Barchart of {if_col} ({part} values) for {dept} "
+                    f"department saved in : \n {if_analysis_folder_path}")
+    return end_message
+
+
+def plot_if_analysis(institute,
+                     corpus_year,
+                     dept,
+                     bibliometer_path,
+                     datatype,
+                     verbose = True):
+    """
+    Module internal functions: _create_if_barchart, _save_dept_barchart
+
+    """
+
+    # internal functions
+    def _create_save_barchart(dept,
+                              bar_chart_if_df,
+                              part):
+                                  
+        barchart = _create_if_barchart(corpus_year, dept, bar_chart_if_df,
+                                       if_col, dept_kpi_dict, journal_col_alias, part)
+        #message  = _save_dept_barchart(barchart, dept, if_col,
+        #                               if_analysis_folder_path, part)
+        return message
+
+    # Setting useful aliases
+    org_tup = set_org_params(institute, bibliometer_path)
+    final_col_dic, depts_col_list = set_final_col_names(institute, org_tup)
+    journal_col_alias = final_col_dic['journal']
+    pub_list_folder_alias    = pg.ARCHI_YEAR["pub list folder"]
+    analysis_folder_alias    = pg.ARCHI_YEAR["analyses"]
+    if_analysis_folder_alias = pg.ARCHI_YEAR["if analysis"]
+    
+    # Setting useful paths
+    year_folder_path        = bibliometer_path / Path(corpus_year)
+    pub_list_folder_path    = year_folder_path / Path(pub_list_folder_alias)
+    analysis_folder_path    = year_folder_path / Path(analysis_folder_alias)
+    if_analysis_folder_path = analysis_folder_path / Path(if_analysis_folder_alias)
+
+    dept_xlsx_file_path = select_if_file(corpus_year, dept, bibliometer_path)
+    dept_if_df = pd.read_excel(dept_xlsx_file_path)
+    
+    if_col = dept_if_df.columns[2]
+    dept_kpi_dict = reads_kpi_dict(institute, bibliometer_path, corpus_year, org_tup, dept, datatype)
+    
+    if dept == institute: # We split the barchart into to parts "lower" and "upper"
+        # Setting two dataframes with, respectively, upper and lower values
+        # of full IF dataframe of INSTITUTE
+        nb_journals       = dept_kpi_dict[pg.KPI_KEYS_ORDER_DICT[7]]
+        journal_median    = dept_if_df.loc[int(nb_journals/2), journal_col_alias]
+        if_median         = dept_if_df[dept_if_df[journal_col_alias] == \
+                                       journal_median][if_col].values[0]
+        upper_dept_if_df  = dept_if_df[dept_if_df[if_col] >= if_median]
+        lower_dept_if_df  = dept_if_df[dept_if_df[if_col] < if_median]
+
+        # Creating barchart with full IF dataframe of INSTITUTE
+        message = _create_save_barchart(dept, dept_if_df, "all")
+        if verbose:
+            print(message, "\n")
+
+        # Creating barchart with upper values of IF dataframe of INSTITUTE
+        message = _create_save_barchart(dept, upper_dept_if_df, "upper")
+        if verbose:
+            print(message, "\n")
+
+        # Creating barchart with upper values of IF dataframe of INSTITUTE
+        message = _create_save_barchart(dept, lower_dept_if_df, "lower")
+        if verbose:
+            print(message, "\n")
+
+    else:
+        # creating barchart with full IF dataframe of dept
+        message = _create_save_barchart(dept, dept_if_df, "all")
+        if verbose:
+            print(message, "\n")
+
+    end_message = (f"\n    IF analysis plots for corpus {corpus_year} "
+                   f"saved in : \n {if_analysis_folder_path}")
+    if verbose:
+        print(end_message, "\n")

@@ -34,6 +34,8 @@ from bmfuncts.config_utils import set_org_params
 from bmrfuncts.bmr_utils import parse_kw_filename
 from bmrfuncts.bmr_utils import create_kw_cloud
 from bmrfuncts.bmr_utils import plot_countries_analysis
+from bmrfuncts.bmr_utils import plot_if_analysis
+
 
 # Standard library imports
 import pathlib
@@ -67,29 +69,35 @@ def create_analysis(self, master, page_name, institute, bibliometer_path, dataty
         year_select = variable_years.get()
         dep_select = variable_dep_if.get()
         extention = variable_mode.get()
-        path_png = kw_path = bibliometer_path / Path(variable_years.get()) / Path('5 - Analyses\IFs')
-        if extention == 'png':
-            files_list = os.listdir(path_png)
-            files_png = [file for file in files_list if file.endswith('.png') and dep_select in file]
-            if files_png:
-                path_png = path_png / Path(files_png[0])
-                img = mpimg.imread(path_png)
-                imgplot = plt.imshow(img)
-                plt.title(f'Année: {year_select}, Départemement: {dep_select}\n')
-                plt.axis('off')
-                plt.show()
-            else:
-                messagebox.showwarning("Plot IF", f"Sorry unable to find a .png files corresponding to {dep_select}")
-                
-        elif extention == "HTML":
-            files_list = os.listdir(path_png)
-            files_html = [file for file in files_list if file.endswith('.html') and dep_select in file]
-            if files_html:
-                path_html = path_png / Path(files_html[0])
-                webbrowser.open(path_html) 
-            else:
-                messagebox.showwarning("Plot IF", f"Sorry unable to find a .html files corresponding to {dep_select}")
-                
+        plot_if_analysis(institute,
+                         year_select,
+                         dep_select,
+                         bibliometer_path,
+                         datatype,
+                         verbose = True)
+        #path_png = kw_path = bibliometer_path / Path(variable_years.get()) / Path('5 - Analyses\IFs')
+        #if extention == 'png':
+        #    files_list = os.listdir(path_png)
+        #    files_png = [file for file in files_list if file.endswith('.png') and dep_select in file]
+        #    if files_png:
+        #        path_png = path_png / Path(files_png[0])
+        #        img = mpimg.imread(path_png)
+        #        imgplot = plt.imshow(img)
+        #        plt.title(f'Année: {year_select}, Départemement: {dep_select}\n')
+        #        plt.axis('off')
+        #        plt.show()
+        #    else:
+        #        messagebox.showwarning("Plot IF", f"Sorry unable to find a .png files corresponding to {dep_select}")
+        #        
+        #elif extention == "HTML":
+        #    files_list = os.listdir(path_png)
+        #    files_html = [file for file in files_list if file.endswith('.html') and dep_select in file]
+        #    if files_html:
+        #        path_html = path_png / Path(files_html[0])
+        #        webbrowser.open(path_html) 
+        #    else:
+        #        messagebox.showwarning("Plot IF", f"Sorry unable to find a .html files corresponding to {dep_select}")
+        #        
               
         #print(f"\nIFs analysis launched for year {year_select}")
         
