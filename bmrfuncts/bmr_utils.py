@@ -14,13 +14,14 @@ import webbrowser
 # Third party imports
 import bmfuncts.pub_globals as pg
 import BiblioParsing.BiblioSpecificGlobals as bp
+import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
 import pandas as pd
 import plotly.express as px
 from wordcloud import WordCloud
 import plotly.offline as py
 import plotly.graph_objs as go
-import bmrgui.gui_rglobals as gg
+import bmrfuncts.functs_globals as gr
 from bmfuncts.rename_cols import set_final_col_names
 from bmfuncts.config_utils import set_org_params
 from bmfuncts.rename_cols import set_final_col_names
@@ -127,7 +128,7 @@ def create_kw_cloud(institute, year, kw_type, dep, bibliometer_path,
     
 
     # Setting the maximum length of the words for the cloud
-    kw_length = pg.CLOUD_MAX_WORDS_LENGTH
+    kw_length = gr.CLOUD_MAX_WORDS_LENGTH
 
     # Getting the dataframe of keywords with their weight
     dept_xlsx_file_path = kw_analysis_folder_path / Path(f'{dep.strip()} {year}-{kw_type}.xlsx')
@@ -156,10 +157,10 @@ def create_kw_cloud(institute, year, kw_type, dep, bibliometer_path,
         dept_png_file_path = kw_analysis_folder_path / Path(f"{kw_type} {year}-{dep}.png")
         keywords_cloud(dept_kw_txt,
                        dept_png_file_path,
-                       pg.CLOUD_BCKG,
-                       pg.CLOUD_HEIGHT,
-                       pg.CLOUD_WIDTH,
-                       pg.CLOUD_MAX_WORDS,
+                       gr.CLOUD_BCKG,
+                       gr.CLOUD_HEIGHT,
+                       gr.CLOUD_WIDTH,
+                       gr.CLOUD_MAX_WORDS,
                        year,
                        dep,
                        kw_type)
@@ -216,7 +217,7 @@ def plot_countries_analysis(year,bibliometer_path):
     html_path                = geo_analysis_folder_path/ Path('Statistiques par pays.html')
     
     countries= pd.read_excel(geo_file,engine="openpyxl")
-    countries['Code'] = countries['Pays'].map(gg.DIC_CODE_COUNTRIES)
+    countries['Code'] = countries['Pays'].map(gr.DIC_CODE_COUNTRIES)
     countries['number_publis'] =  countries.apply(lambda row: len(row['Liste des Pub_ids'].split(';')),axis=1)
                                                                             
     list_countries           = countries['Code'] .tolist() 
@@ -239,7 +240,7 @@ def plot_countries_analysis(year,bibliometer_path):
     webbrowser.open(html_path)
     
 
-def reads_kpi_dict(institute, bibliometer_path, corpus_year, org_tup, dept, datatype):
+def _reads_kpi_dict(institute, bibliometer_path, corpus_year, org_tup, dept, datatype):
     
     # Setting aliases for updating KPIs database
     results_root_alias       = pg.ARCHI_RESULTS["root"]
@@ -292,7 +293,16 @@ def _builds_if_bargraph_title(kpi_dict,
                  f"IF mean = {if_moyen:.1f}, Articles w/o IF = {wo_if_ratio:.0f} %" + "<br>")
     title = title_base + title_add
 
-    return title    
+    return title 
+
+def plot_if_png(dept_png_file_path,year,dept):
+    
+    fig, ax = plt.subplots(nrows=1, ncols=1)
+    img = mpimg.imread(dept_png_file_path)
+    imgplot = ax.imshow(img)
+    ax.set(title=f'Année: {year}, Départemement: {dept}\n')
+    ax.axis('off')
+    plt.show()    
     
 def _create_if_barchart(corpus_year,
                         dept,
@@ -328,14 +338,14 @@ def _create_if_barchart(corpus_year,
     # Setting barchart parameters
     labels_dict       = {articles_nb_col_alias  : 'Articles number',
                          journal_short_col_alias: 'Short name'}
-    nb_articles_range = pg.BAR_X_RANGE
-    barchart_width    = pg.BAR_WIDTH
-    barchart_height   = pg.BAR_HEIGHT
+    nb_articles_range = gr.BAR_X_RANGE
+    barchart_width    = gr.BAR_WIDTH
+    barchart_height   = gr.BAR_HEIGHT
     nb_journals       = kpi_dict[pg.KPI_KEYS_ORDER_DICT[7]]
-    if nb_journals <= pg.BAR_Y_MAX or part != "all":
-        barchart_height = round(pg.BAR_HEIGHT / pg.BAR_HEIGHT_RATIO)
-    color_range       = pg.BAR_COLOR_RANGE
-    color_scale       = pg.BAR_COLOR_SCALE
+    if nb_journals <= gr.BAR_Y_MAX or part != "all":
+        barchart_height = round(gr.BAR_HEIGHT / gr.BAR_HEIGHT_RATIO)
+    color_range       = gr.BAR_COLOR_RANGE
+    color_scale       = gr.BAR_COLOR_SCALE
 
     barchart = px.bar(data_frame             = plot_df,
                       x                      = articles_nb_col_alias,
@@ -371,7 +381,7 @@ def _save_dept_barchart(barchart, dept, if_col, if_analysis_folder_path, part = 
 
     end_message  = (f"\n    Barchart of {if_col} ({part} values) for {dept} "
                     f"department saved in : \n {if_analysis_folder_path}")
-    return end_message
+    return end_message, dept_png_file_path
 
 
 def plot_if_analysis(institute,
@@ -381,7 +391,14 @@ def plot_if_analysis(institute,
                      datatype,
                      verbose = True):
     """
-    Module internal functions: _create_if_barchart, _save_dept_barchart
+    Plots Impact Factor (IF) bargraph using the excel files generated by BiblioMeter. Two types of excel files are
+    used. 
+    The first files located in bibliometer_path\institute\BiblioMeter_Files\corpus_year\5-Analyses\IFs these files
+    are named "IF YYYY-<dept>.xlsx" contain 3 columns named "Jounal" (journal title), "Number" (number of publications) 
+    in this journal), "IF YYYY" (the Impact Factor of the journal at year YYYY).
+    The second files are loacated in bibliometer_path\institute\BiblioMeter_Files\Sauvegarde des résultats\Synthèse des indicateurs.
+    These files are named "<dept>_Synthèse des KPI.xlsx" the colums names are the corpus year and the cells contains Key Parameter Indicator (KPI). 
+    The list of 19 KPI is is given by the global KPI_KEYS_ORDER_DICT of bmfuncts.pub_globals.
 
     """
 
@@ -392,8 +409,9 @@ def plot_if_analysis(institute,
                                   
         barchart = _create_if_barchart(corpus_year, dept, bar_chart_if_df,
                                        if_col, dept_kpi_dict, journal_col_alias, part)
-        #message  = _save_dept_barchart(barchart, dept, if_col,
-        #                               if_analysis_folder_path, part)
+        message,dept_png_file_path  = _save_dept_barchart(barchart, dept, if_col,
+                                       if_analysis_folder_path, part)
+        plot_if_png(dept_png_file_path,corpus_year,dept)
         return message
 
     # Setting useful aliases
@@ -414,7 +432,7 @@ def plot_if_analysis(institute,
     dept_if_df = pd.read_excel(dept_xlsx_file_path)
     
     if_col = dept_if_df.columns[2]
-    dept_kpi_dict = reads_kpi_dict(institute, bibliometer_path, corpus_year, org_tup, dept, datatype)
+    dept_kpi_dict = _reads_kpi_dict(institute, bibliometer_path, corpus_year, org_tup, dept, datatype)
     
     if dept == institute: # We split the barchart into to parts "lower" and "upper"
         # Setting two dataframes with, respectively, upper and lower values

@@ -14,7 +14,6 @@ import webbrowser
 
 # Third party imports
 import matplotlib.pyplot as plt
-import matplotlib.image as mpimg
 import pandas as pd
 import plotly.offline as py
 import plotly.graph_objs as go

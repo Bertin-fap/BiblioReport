@@ -3,7 +3,6 @@
 
 __all__ = ['ADD_SPACE_MM',
            'CORPUSES_NUMBER',
-           'DIC_CODE_COUNTRIES',
            'FONT_NAME',
            'HELP_ETAPE_7',
            'HELP_ETAPE_8',
@@ -97,40 +96,3 @@ TEXT_WORDCLOUD = "Tracé des nuages de mots des mots-clés"
 TEXT_IFPLOT = "Tracé des Facteurs d'Impacts du corpus bibliographique"
 TEXT_MODE = "Type fichier ?"
 TEXT_IF_ANALYSIS = "Lancer le tracé"
-
-COUNTRIES_CODES = '''United States:USA,Afghanistan:AFG,Albania:ALB,Algeria:DZA,American Samoa:ASM,Andorra:AND,
-Angola:AGO,Anguilla:AIA,Antarctica:ATA,Antigua And Barbuda:ATG,Argentina:ARG,Armenia:ARM,Aruba:ABW,
-Australia:AUS,Austria:AUT,Azerbaijan:AZE,Bahamas:BHS,Bahrain:BHR,Bangladesh:BGD,Barbados:BRB,
-Belarus:BLR,Belgium:BEL,Belize:BLZ,Benin:BEN,Bermuda:BMU,Bhutan:BTN,Bolivia:BOL,
-Bosnia And Herzegowina:BIH,Botswana:BWA,Bouvet Island:BVT,Brazil:BRA,Brunei Darussalam:BRN,
-Bulgaria:BGR,Burkina Faso:BFA,Burundi:BDI,Cambodia:KHM,Cameroon:CMR,Canada:CAN,Cape Verde:CPV,
-Cayman Islands:CYM,Central African Rep:CAF,Chad:TCD,Chile:CHL,China:CHN,Christmas Island:CXR,
-Cocos Islands:CCK,Colombia:COL,Comoros:COM,Congo:COG,Cook Islands:COK,Costa Rica:CRI,
-Cote D`ivoire:CIV,Croatia:HRV,Cuba:CUB,Cyprus:CYP,Czech Republic:CZE,Denmark:DNK,Djibouti:DJI,
-Dominica:DMA,Dominican Republic:DOM,East Timor:TLS,Ecuador:ECU,Egypt:EGY,El Salvador:SLV,
-Equatorial Guinea:GNQ,Eritrea:ERI,Estonia:EST,Ethiopia:ETH,Falkland Islands (Malvinas):FLK,
-Faroe Islands:FRO,Fiji:FJI,Finland:FIN,France:FRA,French Guiana:GUF,French Polynesia:PYF,
-French S. Territories:ATF,Gabon:GAB,Gambia:GMB,Georgia:GEO,Germany:DEU,Ghana:GHA,Gibraltar:GIB,
-Greece:GRC,Greenland:GRL,Grenada:GRD,Guadeloupe:GLP,Guam:GUM,Guatemala:GTM,Guinea:GIN,
-Guinea-bissau:GNB,Guyana:GUY,Haiti:HTI,Honduras:HND,Hong Kong:HKG,Hungary:HUN,Iceland:ISL,
-India:IND,Indonesia:IDN,Iran:IRN,Iraq:IRQ,Ireland:IRL,Israel:ISR,Italy:ITA,Jamaica:JAM,Japan:JPN,
-Jordan:JOR,Kazakhstan:KAZ,Kenya:KEN,Kiribati:KIR,North Korea:PRK,South Korea:KOR,Kuwait:KWT,
-Kyrgyzstan:KGZ,Laos:LAO,Latvia:LVA,Lebanon:LBN,Lesotho:LSO,Liberia:LBR,Libya:LBY,Liechtenstein:LIE,
-Lithuania:LTU,Luxembourg:LUX,Madagascar:MDG,Malawi:MWI,Malaysia:MYS,Maldives:MDV,Mali:MLI,
-Malta:MLT,Marshall Islands:MHL,Martinique:MTQ,Mauritania:MRT,Mauritius:MUS,Mayotte:MYT,Mexico:MEX,
-Monaco:MCO,Mongolia:MNG,Montserrat:MSR,Morocco:MAR,Mozambique:MOZ,Myanmar:MMR,Namibia:NAM,
-Nauru:NRU,Nepal:NPL,Netherlands:NLD,New Caledonia:NCL,New Zealand:NZL,Nicaragua:NIC,Niger:NER,
-Nigeria:NGA,Niue:NIU,Norfolk Island:NFK,Northern Mariana Islands:MNP,Norway:NOR,Oman:OMN,
-Pakistan:PAK,Palau:PLW,Panama:PAN,Papua New Guinea:PNG,Paraguay:PRY,Peru:PER,Philippines:PHL,
-Pitcairn:PCN,Poland:POL,Portugal:PRT,Puerto Rico:PRI,Qatar:QAT,Romania:ROU,Russian Federation:RUS,
-Rwanda:RWA,Saint Kitts And Nevis:KNA,Saint Lucia:LCA,St Vincent/Grenadines:VCT,Samoa:WSM,
-San Marino:SMR,Sao Tome:STP,Saudi Arabia:SAU,Senegal:SEN,Seychelles:SYC,Sierra Leone:SLE,
-Singapore:SGP,Slovakia:SVK,Slovenia:SVN,Solomon Islands:SLB,Somalia:SOM,South Africa:ZAF,
-Spain:ESP,Sri Lanka:LKA,St. Helena:SHN,St.Pierre:SPM,Sudan:SDN,Suriname:SUR,Swaziland:SWZ,
-Sweden:SWE,Switzerland:CHE,Syrian Arab Republic:SYR,Taiwan:TWN,Tajikistan:TJK,Tanzania:TZA,
-Thailand:THA,Togo:TGO,Tokelau:TKL,Tonga:TON,Tunisia:TUN,Turkey:TUR,Turkmenistan:TKM,Tuvalu:TUV,
-Uganda:UGA,Ukraine:UKR,United Arab Emirates:ARE,United Kingdom:GBR,Uruguay:URY,Uzbekistan:UZB,
-Vanuatu:VUT,Vatican City State:VAT,Venezuela:VEN,Viet Nam:VNM,Virgin Islands (British):VGB,
-Virgin Islands (U.S.):VIR,Western Sahara:ESH,Yemen:YEM,Zambia:ZMB,Zimbabwe:ZWE'''
-
-DIC_CODE_COUNTRIES = {y.split(':')[0].strip('\n').strip():y.split(':')[1]  for y in COUNTRIES_CODES.split(',')}
