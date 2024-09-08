@@ -26,34 +26,62 @@ from bmfuncts.rename_cols import set_final_col_names
 from bmfuncts.config_utils import set_org_params
 from bmfuncts.rename_cols import set_final_col_names
 
-
-
-def parse_kw_filename(bibliometer_path, year, metric, extension):
-    '''Builds a list of namedtuples which entries are associated to files with extenson `extention` loacated in the ìnput_path`directory.
-    The nametuples has 3 fields : `dep` hosts the departement name, `year` hosts the year and `kw` hosts the keyword type
-    '''
+def set_paths(bibliometer_path,year,datatype):
     
     # Setting useful aliases
-    xlsx_extent_alias        = ".xlsx"
-    kw_analysis_folder_alias = pg.ARCHI_YEAR["keywords analysis"]
-    if_analysis_folder_alias = pg.ARCHI_YEAR["if analysis"]
-    analysis_folder_alias    = pg.ARCHI_YEAR["analyses"]
-    pub_list_filename_base   = pg.ARCHI_YEAR["pub list file name base"]
-    pub_list_filename        = pub_list_filename_base + " " + str(year) + xlsx_extent_alias
-    pub_list_folder_alias    = pg.ARCHI_YEAR["pub list folder"]
+    save_folder_alias         = pg.ARCHI_RESULTS["root"]
+    if_analysis_folder_alias  = pg.ARCHI_RESULTS["impact-factors"]
+    kw_analysis_folder_alias  = pg.ARCHI_RESULTS["keywords"]
+    geo_analysis_folder_alias = pg.ARCHI_RESULTS["countries"]
+    kpi_analysis_folder_alias = pg.ARCHI_RESULTS["kpis"]
+    
+    # Find the directory name associated with datatype
+    datatype_idx = pg.DATATYPE_LIST.index(datatype)
+    datatype_dir = pg.ARCHI_RESULTS[pg.DATATYPE_LIST[datatype_idx]]
     
     # Setting useful paths
-    year_folder_path        = bibliometer_path / Path(str(year))
-    pub_list_folder_path    = year_folder_path / Path(pub_list_folder_alias)
-    analysis_folder_path    = year_folder_path / Path(analysis_folder_alias)
-    kw_analysis_folder_path = analysis_folder_path / Path(kw_analysis_folder_alias)
-    if_analysis_folder_path = analysis_folder_path / Path(if_analysis_folder_alias)
+    base_folder_path         = bibliometer_path / Path(save_folder_alias)
+    datatype_folder_path     = base_folder_path / Path(datatype_dir)
+    year_folder_path         = datatype_folder_path / Path(str(year))
+    if_analysis_folder_path  = year_folder_path / Path(if_analysis_folder_alias)
+    kw_analysis_folder_path  = year_folder_path / Path(kw_analysis_folder_alias)
+    geo_analysis_folder_path = year_folder_path / Path(geo_analysis_folder_alias)
+    kpi_folder_path          = datatype_folder_path / Path(kpi_analysis_folder_alias)
+    
+    path_dic =dict(kw  = kw_analysis_folder_path,
+                   geo = geo_analysis_folder_path,
+                   ifs = if_analysis_folder_path,
+                   kpi = kpi_folder_path)
+    return path_dic
+    
+
+def parse_kw_filename(bibliometer_path, year, metric, extension, datatype):
+    '''Builds a list of namedtuples whith 3 fields associated to files with extenson `extention` located in the ìnput_path`directory.
+    The 3 fields are : `dep` hosts the departement name, `year` hosts the year and `kw` hosts the keyword type
+    '''
+    # Setting useful aliases
+    #xlsx_extent_alias        = ".xlsx"
+    #kw_analysis_folder_alias = pg.ARCHI_YEAR["keywords analysis"]
+    #if_analysis_folder_alias = pg.ARCHI_YEAR["if analysis"]
+    #analysis_folder_alias    = pg.ARCHI_YEAR["analyses"]
+    #pub_list_filename_base   = pg.ARCHI_YEAR["pub list file name base"]
+    #pub_list_filename        = pub_list_filename_base + " " + str(year) + xlsx_extent_alias
+    #pub_list_folder_alias    = pg.ARCHI_YEAR["pub list folder"]
+    #
+    ## Setting useful paths
+    #year_folder_path        = bibliometer_path / Path(str(year))
+    ##pub_list_folder_path    = year_folder_path / Path(pub_list_folder_alias)
+    #analysis_folder_path    = year_folder_path / Path(analysis_folder_alias)
+    #kw_analysis_folder_path = analysis_folder_path / Path(kw_analysis_folder_alias)
+    #if_analysis_folder_path = analysis_folder_path / Path(if_analysis_folder_alias)
+    
+    path_dic = set_paths(bibliometer_path,year,datatype)
     
     if metric == "IF":
-        metric_analysis_folder_path = if_analysis_folder_path
+        metric_analysis_folder_path = path_dic["ifs"] #if_analysis_folder_path
         pattern = re.compile('(?P<kw>^\w*\s)(?P<year>\d{4})-(?P<dep>\w*)\.')
     elif metric == "KW":
-        metric_analysis_folder_path = kw_analysis_folder_path
+        metric_analysis_folder_path = path_dic["kw"] #kw_analysis_folder_path
         pattern = re.compile('(?P<dep>^\w*\s)(?P<year>\d{4})-(?P<kw>\w*)\.')
 
     kw_tup = namedtuple('kw_tup',['dep' , 'year', 'kw'])
@@ -76,33 +104,36 @@ def parse_kw_filename(bibliometer_path, year, metric, extension):
     
     return kw
     
-def select_if_file(year,dep,bibliometer_path):
+def select_if_file(year,dep,bibliometer_path, datatype):
     
-    '''selects the articles impact factor .xlsx file of year `year` witch contain the departement aconym `dep'''
+    '''selects the articles impact factor .xlsx file of year `year` witch contain the departement aconyme `dep'''
     
-    # Setting aliases
-    analysis_folder_alias    = pg.ARCHI_YEAR["analyses"]
-    if_analysis_folder_alias = pg.ARCHI_YEAR["if analysis"]
+    ## Setting aliases
+    #analysis_folder_alias    = pg.ARCHI_YEAR["analyses"]
+    #if_analysis_folder_alias = pg.ARCHI_YEAR["if analysis"]
+    #
+    ## Setting useful paths
+    #year_folder_path        = bibliometer_path / Path(str(year))
+    #analysis_folder_path    = year_folder_path / Path(analysis_folder_alias)
+    #if_analysis_folder_path = analysis_folder_path / Path(if_analysis_folder_alias)
     
-    # Setting useful paths
-    year_folder_path        = bibliometer_path / Path(str(year))
-    analysis_folder_path    = year_folder_path / Path(analysis_folder_alias)
-    if_analysis_folder_path = analysis_folder_path / Path(if_analysis_folder_alias)
+    path_dic = set_paths(bibliometer_path,year,datatype)
     
-    files = [x for x in os.listdir(if_analysis_folder_path) 
-                 if x.endswith(".xlsx") and dep in x]
+    files = [x for x in os.listdir(path_dic['ifs']) 
+             if x.endswith(".xlsx") and dep in x]
     if files:
-        dept_xlsx_file_path = Path(if_analysis_folder_path) / Path(files[0])
+        dept_xlsx_file_path = Path(path_dic['ifs']) / Path(files[0])
         return dept_xlsx_file_path
     else:
         print(f'file not found')
     
     
     
-def create_kw_cloud(institute, year, kw_type, dep, bibliometer_path,
+def create_kw_cloud(institute, year, kw_type, dep, bibliometer_path,datatype,
                      verbose = False):
     """Creates a wordcloud of the keywords.
     """
+
     # Setting useful aliases
     org_tup = set_org_params(institute, bibliometer_path)
     final_col_dic, depts_col_list = set_final_col_names(institute, org_tup)
@@ -113,25 +144,17 @@ def create_kw_cloud(institute, year, kw_type, dep, bibliometer_path,
     keywords_col_alias       = bp.COL_NAMES['keywords'][1]
     weight_col_alias         = pg.COL_NAMES_BONUS['weight']
     unknown_alias            = bp.UNKNOWN
-    analysis_folder_alias    = pg.ARCHI_YEAR["analyses"]
-    pub_list_filename_base   = pg.ARCHI_YEAR["pub list file name base"]
-    xlsx_extent_alias        = ".xlsx"
-    pub_list_filename        = pub_list_filename_base + " " + str(year) + xlsx_extent_alias
-    pub_list_folder_alias    = pg.ARCHI_YEAR["pub list folder"]
 
     # Setting useful paths
-    year_folder_path        = bibliometer_path / Path(str(year))
-    pub_list_folder_path    = year_folder_path / Path(pub_list_folder_alias)
-    #pub_list_file_path      = pub_list_folder_path / Path(pub_list_filename)
-    analysis_folder_path    = year_folder_path / Path(analysis_folder_alias)
-    kw_analysis_folder_path = analysis_folder_path / Path(kw_analysis_folder_alias)
+    path_dic = set_paths(bibliometer_path,year,datatype)
+    kw_analysis_folder_path = path_dic["kw"]
     
-
     # Setting the maximum length of the words for the cloud
     kw_length = gr.CLOUD_MAX_WORDS_LENGTH
 
     # Getting the dataframe of keywords with their weight
     dept_xlsx_file_path = kw_analysis_folder_path / Path(f'{dep.strip()} {year}-{kw_type}.xlsx')
+    print('dept_xlsx_file_path', dept_xlsx_file_path)
     if not os.path.exists(dept_xlsx_file_path):
         messagebox.showwarning("Plot KW", f"Sorry unable to find a .xlsx files corresponding to {dep}")
         return
@@ -155,7 +178,7 @@ def create_kw_cloud(institute, year, kw_type, dep, bibliometer_path,
     # create and save the cloud image for department 'dept'
     if dept_kw_txt!='':
         dept_png_file_path = kw_analysis_folder_path / Path(f"{kw_type} {year}-{dep}.png")
-        keywords_cloud(dept_kw_txt,
+        _keywords_cloud(dept_kw_txt,
                        dept_png_file_path,
                        gr.CLOUD_BCKG,
                        gr.CLOUD_HEIGHT,
@@ -163,6 +186,7 @@ def create_kw_cloud(institute, year, kw_type, dep, bibliometer_path,
                        gr.CLOUD_MAX_WORDS,
                        year,
                        dep,
+                       datatype,
                        kw_type)
 
     message = ("\n    Wordcloud images for all keywords types "
@@ -170,8 +194,10 @@ def create_kw_cloud(institute, year, kw_type, dep, bibliometer_path,
     if verbose:
         print(message, "\n")
         
-def keywords_cloud(txt, out, bckg, h, w, mxw, year, dep, kw, verbose = False):
+def _keywords_cloud(txt, out, bckg, h, w, mxw, year, dep, kw, datatype, verbose = False):
     """
+    Plots the wordcloud of the text `txt`.
+    
     Args:
         txt (str): Text which words will be plot as cloud.
         out (path): Full path of the png file that will contain the plot image.
@@ -201,20 +227,19 @@ def keywords_cloud(txt, out, bckg, h, w, mxw, year, dep, kw, verbose = False):
     if verbose:
         print(message)
 
-def plot_countries_analysis(year,bibliometer_path):
+def plot_countries_analysis(year,bibliometer_path,datatype):
     
     # Setting useful aliases
     unknown_alias            = bp.UNKNOWN
-    xlsx_extent_alias        = ".xlsx"
-    geo_folder_alias         = pg.ARCHI_YEAR["countries analysis"]
-    analysis_folder_alias    = pg.ARCHI_YEAR["analyses"]
+    #geo_folder_alias         = pg.ARCHI_YEAR["countries analysis"]
+    #analysis_folder_alias    = pg.ARCHI_YEAR["analyses"]
+    geo_file_alias = pg.ARCHI_YEAR["country weight file name"]+' '+str(year)
     
     # Setting useful paths
-    year_folder_path         = bibliometer_path / Path(str(year))
-    analysis_folder_path     = year_folder_path / Path(analysis_folder_alias)
-    geo_analysis_folder_path = analysis_folder_path / Path(geo_folder_alias) 
-    geo_file                 = geo_analysis_folder_path / Path('Statistiques par pays.xlsx')
-    html_path                = geo_analysis_folder_path/ Path('Statistiques par pays.html')
+    path_dic = set_paths(bibliometer_path,year,datatype)
+    geo_analysis_folder_path = path_dic["geo"] 
+    geo_file                 = geo_analysis_folder_path / Path(geo_file_alias+".xlsx")
+    html_path                = geo_analysis_folder_path/ Path(geo_file_alias+".html")
     
     countries= pd.read_excel(geo_file,engine="openpyxl")
     countries['Code'] = countries['Pays'].map(gr.DIC_CODE_COUNTRIES)
@@ -239,19 +264,20 @@ def plot_countries_analysis(year,bibliometer_path):
     # show file 
     webbrowser.open(html_path)
     
-
 def _reads_kpi_dict(institute, bibliometer_path, corpus_year, org_tup, dept, datatype):
     
-    # Setting aliases for updating KPIs database
-    results_root_alias       = pg.ARCHI_RESULTS["root"]
-    results_folder_alias     = pg.ARCHI_RESULTS[datatype]
-    results_sub_folder_alias = pg.ARCHI_RESULTS["kpis"]
+    ## Setting aliases for updating KPIs database
+    #results_root_alias       = pg.ARCHI_RESULTS["root"]
+    #results_folder_alias     = pg.ARCHI_RESULTS[datatype]
+    #results_sub_folder_alias = pg.ARCHI_RESULTS["kpis"]
     kpi_file_base_alias      = pg.ARCHI_RESULTS["kpis file name base"]
-
+    
     # Setting paths for saving results
-    results_root_path        = bibliometer_path / Path(results_root_alias)
-    results_folder_path      = results_root_path / Path(results_folder_alias)
-    results_kpis_folder_path = results_folder_path / Path(results_sub_folder_alias)
+    path_dic = set_paths(bibliometer_path,corpus_year,datatype)
+    results_kpis_folder_path = path_dic["kpi"]
+    #results_root_path        = bibliometer_path / Path(results_root_alias)
+    #results_folder_path      = results_root_path / Path(results_folder_alias)
+    #results_kpis_folder_path = results_folder_path / Path(results_sub_folder_alias)
     
     filename = dept + "_" + kpi_file_base_alias + ".xlsx"
     file_path = results_kpis_folder_path / Path(filename)
@@ -418,17 +444,18 @@ def plot_if_analysis(institute,
     org_tup = set_org_params(institute, bibliometer_path)
     final_col_dic, depts_col_list = set_final_col_names(institute, org_tup)
     journal_col_alias = final_col_dic['journal']
-    pub_list_folder_alias    = pg.ARCHI_YEAR["pub list folder"]
-    analysis_folder_alias    = pg.ARCHI_YEAR["analyses"]
-    if_analysis_folder_alias = pg.ARCHI_YEAR["if analysis"]
+    #pub_list_folder_alias    = pg.ARCHI_YEAR["pub list folder"]
+    #analysis_folder_alias    = pg.ARCHI_YEAR["analyses"]
+    #if_analysis_folder_alias = pg.ARCHI_YEAR["if analysis"]
     
     # Setting useful paths
-    year_folder_path        = bibliometer_path / Path(corpus_year)
-    pub_list_folder_path    = year_folder_path / Path(pub_list_folder_alias)
-    analysis_folder_path    = year_folder_path / Path(analysis_folder_alias)
-    if_analysis_folder_path = analysis_folder_path / Path(if_analysis_folder_alias)
+    #year_folder_path        = bibliometer_path / Path(corpus_year)
+    #analysis_folder_path    = year_folder_path / Path(analysis_folder_alias)
+    #if_analysis_folder_path = analysis_folder_path / Path(if_analysis_folder_alias)
+    path_dic = set_paths(bibliometer_path,corpus_year,datatype)
+    if_analysis_folder_path = path_dic["ifs"]
 
-    dept_xlsx_file_path = select_if_file(corpus_year, dept, bibliometer_path)
+    dept_xlsx_file_path = select_if_file(corpus_year, dept, bibliometer_path, datatype)
     dept_if_df = pd.read_excel(dept_xlsx_file_path)
     
     if_col = dept_if_df.columns[2]

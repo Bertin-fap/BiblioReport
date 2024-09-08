@@ -45,8 +45,8 @@ import pandas as pd
 import plotly.offline as py
 import plotly.graph_objs as go
 
-def _plot_countries_analysis(year,biblio_path):
-    plot_countries_analysis(year,biblio_path)
+def _plot_countries_analysis(year,biblio_path,datatype):
+    plot_countries_analysis(year,biblio_path,datatype)
 
 def create_analysis(self, master, page_name, institute, bibliometer_path, datatype):
     """
@@ -108,7 +108,7 @@ def create_analysis(self, master, page_name, institute, bibliometer_path, dataty
         dep_select = variable_dep.get()
         
         
-        create_kw_cloud(institute, year_select, kw_select, dep_select, bibliometer_path,
+        create_kw_cloud(institute, year_select, kw_select, dep_select, bibliometer_path,datatype,
                         verbose = False)
 
         #print(f"Keywords analysis launched for year {year_select}, kw {kw_select}, departement {dep_select}")
@@ -116,7 +116,7 @@ def create_analysis(self, master, page_name, institute, bibliometer_path, dataty
     def _launch_coupling_analysis_try():
         # Getting year selection
         year_select = variable_years.get()
-        _plot_countries_analysis(int(year_select),bibliometer_path)
+        _plot_countries_analysis(int(year_select),bibliometer_path, datatype)
         
 
     # Setting effective font sizes and positions (numbers are reference values)
@@ -209,7 +209,8 @@ def create_analysis(self, master, page_name, institute, bibliometer_path, dataty
     if_tup = parse_kw_filename(bibliometer_path,
                                variable_years.get().strip(),
                                'IF',
-                               '.xlsx') # kw list of nametuples kw.dep, kw.year, kw.kw
+                               '.xlsx',
+                               datatype,) # kw list of nametuples kw.dep, kw.year, kw.kw
     default_dep_if = if_tup.dep[-1]
     variable_dep_if = tk.StringVar(self)
     variable_dep_if.set(default_dep_if)
@@ -328,7 +329,8 @@ def create_analysis(self, master, page_name, institute, bibliometer_path, dataty
     kw = parse_kw_filename(bibliometer_path,
                            variable_years.get().strip(),
                            'KW',
-                           '.xlsx') # kw list of nametuples kw.dep, kw.year, kw.kw
+                           '.xlsx',
+                           datatype) # kw list of nametuples kw.dep, kw.year, kw.kw
     default_dep = kw.dep[-1]
     variable_dep = tk.StringVar(self)
     variable_dep.set(default_dep)

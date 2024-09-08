@@ -13,6 +13,7 @@ __all_ = ['CLOUD_BCKG',
 		  'BAR_COLOR_SCALE'
 		  'DIC_CODE_COUNTRIES',
 		  ]
+          
 # Standard library imports
 import plotly.express as px
 
