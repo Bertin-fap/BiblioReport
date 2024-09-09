@@ -67,40 +67,13 @@ def create_analysis(self, master, page_name, institute, bibliometer_path, dataty
         # Getting year selection
         year_select = variable_years.get()
         dep_select = variable_dep_if.get()
-        extention = variable_mode.get()
         plot_if_analysis(institute,
                          year_select,
                          dep_select,
                          bibliometer_path,
                          datatype,
                          verbose = True)
-        #path_png = kw_path = bibliometer_path / Path(variable_years.get()) / Path('5 - Analyses\IFs')
-        #if extention == 'png':
-        #    files_list = os.listdir(path_png)
-        #    files_png = [file for file in files_list if file.endswith('.png') and dep_select in file]
-        #    if files_png:
-        #        path_png = path_png / Path(files_png[0])
-        #        img = mpimg.imread(path_png)
-        #        imgplot = plt.imshow(img)
-        #        plt.title(f'Année: {year_select}, Départemement: {dep_select}\n')
-        #        plt.axis('off')
-        #        plt.show()
-        #    else:
-        #        messagebox.showwarning("Plot IF", f"Sorry unable to find a .png files corresponding to {dep_select}")
-        #        
-        #elif extention == "HTML":
-        #    files_list = os.listdir(path_png)
-        #    files_html = [file for file in files_list if file.endswith('.html') and dep_select in file]
-        #    if files_html:
-        #        path_html = path_png / Path(files_html[0])
-        #        webbrowser.open(path_html) 
-        #    else:
-        #        messagebox.showwarning("Plot IF", f"Sorry unable to find a .html files corresponding to {dep_select}")
-        #        
-              
-        #print(f"\nIFs analysis launched for year {year_select}")
         
-
     def _launch_kw_plot():
         # Getting year selection, keyword selection and departement selection
         year_select = variable_years.get()
@@ -111,7 +84,6 @@ def create_analysis(self, master, page_name, institute, bibliometer_path, dataty
         create_kw_cloud(institute, year_select, kw_select, dep_select, bibliometer_path,datatype,
                         verbose = False)
 
-        #print(f"Keywords analysis launched for year {year_select}, kw {kw_select}, departement {dep_select}")
 
     def _launch_coupling_analysis_try():
         # Getting year selection
@@ -216,8 +188,6 @@ def create_analysis(self, master, page_name, institute, bibliometer_path, dataty
     variable_dep_if.set(default_dep_if)
     mode_list =['png','HTML']
     default_mode = mode_list[-1]
-    variable_mode = tk.StringVar(self)
-    variable_mode.set(default_mode)
     
     ## - Creating departement selection label
     Label_if = tk.Label(self,
@@ -234,18 +204,18 @@ def create_analysis(self, master, page_name, institute, bibliometer_path, dataty
     place_after(Label_if, OptionButton_dep_if, dy=-5)
     
         ## - Creating mode selection label
-    Label_mode = tk.Label(self,
-                          text=gg.TEXT_MODE,
-                          font=help_label_font)
-                          
-    # - Creating mode button option
-    OptionButton_mode_if = tk.OptionMenu(self,
-                                         variable_mode,
-                                         *mode_list)
-    OptionButton_mode_if.config(font=self.font_OptionButton_years)
-    
-    place_after(OptionButton_dep_if, Label_mode, dx=50, dy=5)
-    place_after(Label_mode, OptionButton_mode_if, dx=10, dy=0)
+    #Label_mode = tk.Label(self,
+    #                      text=gg.TEXT_MODE,
+    #                      font=help_label_font)
+    #                      
+    ## - Creating mode button option
+    #OptionButton_mode_if = tk.OptionMenu(self,
+    #                                     variable_mode,
+    #                                     *mode_list)
+    #OptionButton_mode_if.config(font=self.font_OptionButton_years)
+    #
+    #place_after(OptionButton_dep_if, Label_mode, dx=50, dy=5)
+    #place_after(Label_mode, OptionButton_mode_if, dx=10, dy=0)
 
     # - Setting launch button
     if_analysis_launch_font = tkFont.Font(family=gg.FONT_NAME,
@@ -254,10 +224,10 @@ def create_analysis(self, master, page_name, institute, bibliometer_path, dataty
                                           text=gg.TEXT_IF_ANALYSIS,
                                           font=if_analysis_launch_font,
                                           command= _launch_if_analysis_try)
-    place_after(OptionButton_mode_if,
-                 if_analysis_launch_button,
-                 dx=50,
-                 dy=0)
+    place_after(OptionButton_dep_if,
+                if_analysis_launch_button,
+                dx=50,
+                dy=0)
 
     ###################################################
     # Creating and setting geographics analysis widgets

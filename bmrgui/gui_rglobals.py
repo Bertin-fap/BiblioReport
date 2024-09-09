@@ -41,7 +41,6 @@ __all__ = ['ADD_SPACE_MM',
            'BUTT_GEOPLOT',
            'TEXT_WORDCLOUD',
            'TEXT_IFPLOT',
-           'TEXT_MODE',
            'TEXT_IF_ANALYSIS',
            'TEXT_TITLE',]
            
@@ -87,12 +86,11 @@ PAGES_LABELS = dict(Word="Bibliographie Word",
 APPLICATION_WINDOW_TITLE = "BiblioReport Création de documents et de graphes"
 TEXT_YEAR_PI = "Sélection de(s) année(s)"
 
-TEXT_KW_ANALYSIS = "Plot KW"
+TEXT_KW_ANALYSIS = "Lancer le tracé"
 TEXT_DEPT = "Département ?"
 TEXT_KW = "Mot clé ?"
 TEXT_GEOPLOT = "Analyse géographique des collaborations"
 BUTT_GEOPLOT = "Lancer le tracé"
 TEXT_WORDCLOUD = "Tracé des nuages de mots des mots-clés"
 TEXT_IFPLOT = "Tracé des Facteurs d'Impacts du corpus bibliographique"
-TEXT_MODE = "Type fichier ?"
 TEXT_IF_ANALYSIS = "Lancer le tracé"
