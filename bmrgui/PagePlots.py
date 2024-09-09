@@ -45,8 +45,8 @@ import pandas as pd
 import plotly.offline as py
 import plotly.graph_objs as go
 
-def _plot_countries_analysis(year,biblio_path,datatype):
-    plot_countries_analysis(year,biblio_path,datatype)
+def _plot_countries_analysis(year,biblio_path,datatype,institute):
+    plot_countries_analysis(year,biblio_path,datatype,institute)
 
 def create_analysis(self, master, page_name, institute, bibliometer_path, datatype):
     """
@@ -88,7 +88,8 @@ def create_analysis(self, master, page_name, institute, bibliometer_path, dataty
     def _launch_coupling_analysis_try():
         # Getting year selection
         year_select = variable_years.get()
-        _plot_countries_analysis(int(year_select),bibliometer_path, datatype)
+        
+        _plot_countries_analysis(int(year_select),bibliometer_path, datatype,institute)
         
 
     # Setting effective font sizes and positions (numbers are reference values)
@@ -114,13 +115,6 @@ def create_analysis(self, master, page_name, institute, bibliometer_path, dataty
     etape_label_format = 'left'
     etape_underline = -1
 
-    # Setting aliases for saving results independent of corpus year
-    results_root_alias = pg.ARCHI_RESULTS["root"]
-    results_folder_alias = pg.ARCHI_RESULTS[datatype]
-
-    # Setting paths for saving results independent of corpus year
-    results_root_path = bibliometer_path / Path(results_root_alias)
-    results_folder_path = results_root_path / Path(results_folder_alias)
 
     # Getting institute parameters
     org_tup = set_org_params(institute, bibliometer_path)
@@ -143,7 +137,7 @@ def create_analysis(self, master, page_name, institute, bibliometer_path, dataty
                                         size=eff_select_font_size,
                                         weight='bold')
     self.Label_years = tk.Label(self,
-                                text=gg.TEXT_YEAR_PI,
+                                text=gg.TEXT_YEAR_KPI,
                                 font=self.font_Label_years)
     self.Label_years.place(x=year_button_x_pos, y=year_button_y_pos)
 
@@ -170,7 +164,7 @@ def create_analysis(self, master, page_name, institute, bibliometer_path, dataty
     help_label_font = tkFont.Font(family=gg.FONT_NAME,
                                   size=eff_help_font_size)
     help_label_if = tk.Label(self,
-                             text=gg.HELP_ETAPE_7,
+                             text=gg.HELP_IF_PLOT,
                              justify="left",
                              font=help_label_font)
     place_bellow(if_analysis_label,
@@ -203,21 +197,7 @@ def create_analysis(self, master, page_name, institute, bibliometer_path, dataty
     place_bellow(help_label_if, Label_if, dy=30)
     place_after(Label_if, OptionButton_dep_if, dy=-5)
     
-        ## - Creating mode selection label
-    #Label_mode = tk.Label(self,
-    #                      text=gg.TEXT_MODE,
-    #                      font=help_label_font)
-    #                      
-    ## - Creating mode button option
-    #OptionButton_mode_if = tk.OptionMenu(self,
-    #                                     variable_mode,
-    #                                     *mode_list)
-    #OptionButton_mode_if.config(font=self.font_OptionButton_years)
-    #
-    #place_after(OptionButton_dep_if, Label_mode, dx=50, dy=5)
-    #place_after(Label_mode, OptionButton_mode_if, dx=10, dy=0)
 
-    # - Setting launch button
     if_analysis_launch_font = tkFont.Font(family=gg.FONT_NAME,
                                           size=eff_launch_font_size)
     if_analysis_launch_button = tk.Button(self,
@@ -250,7 +230,7 @@ def create_analysis(self, master, page_name, institute, bibliometer_path, dataty
     help_label_font = tkFont.Font(family=gg.FONT_NAME,
                                   size=eff_help_font_size)
     help_label_if = tk.Label(self,
-                          text=gg.HELP_ETAPE_8,
+                          text=gg.HELP_GEO_PLOT,
                           justify="left",
                           font=help_label_font)
     place_bellow(co_analysis_label,
@@ -289,7 +269,7 @@ def create_analysis(self, master, page_name, institute, bibliometer_path, dataty
     help_label_font = tkFont.Font(family=gg.FONT_NAME,
                                   size=eff_help_font_size)
     help_label_kw = tk.Label(self,
-                          text=gg.HELP_ETAPE_9,
+                          text=gg.HELP_KW_PLOT,
                           justify="left",
                           font=help_label_font)
     place_bellow(kw_analysis_label,

@@ -4,9 +4,9 @@
 __all__ = ['ADD_SPACE_MM',
            'CORPUSES_NUMBER',
            'FONT_NAME',
-           'HELP_ETAPE_7',
-           'HELP_ETAPE_8',
-           'HELP_ETAPE_9',
+           'HELP_GEO_PLOT',
+           'HELP_IF_PLOT',
+           'HELP_KW_PLOT',
            'PPI',
            'REF_BMF_POS_X_MM',
            'REF_BMF_POS_Y_MM',
@@ -40,6 +40,7 @@ __all__ = ['ADD_SPACE_MM',
            'TEXT_GEOPLOT',
            'BUTT_GEOPLOT',
            'TEXT_WORDCLOUD',
+           'TEXT_YEAR_KPI',
            'TEXT_IFPLOT',
            'TEXT_IF_ANALYSIS',
            'TEXT_TITLE',]
@@ -70,9 +71,9 @@ TEXT_INSTITUTE = ggr.TEXT_INSTITUTE
 REF_ETAPE_FONT_SIZE = ggr.REF_ETAPE_FONT_SIZE
 REF_YEAR_BUT_POS_X_MM = ggr.REF_YEAR_BUT_POS_X_MM
 REF_YEAR_BUT_POS_Y_MM = ggr.REF_YEAR_BUT_POS_Y_MM
-HELP_ETAPE_7 = ggr.HELP_ETAPE_7
-HELP_ETAPE_8 = ggr.HELP_ETAPE_8
-HELP_ETAPE_9 = ggr.HELP_ETAPE_9
+HELP_IF_PLOT = "L'analyse des IFs est effectuée à partir des fichiers Excel générés par BibloMeter"
+HELP_GEO_PLOT = "L'analyse géographique des collaborations est effectuée à partir des fichiers Excel générés par BibloMeter"
+HELP_KW_PLOT =  "L'analyse des mots cléf est effectuée à partir des fichiers Excel générés par BibloMeter"
 REF_PAGE_TITLE_FONT_SIZE = ggr.REF_PAGE_TITLE_FONT_SIZE
 REF_PAGE_TITLE_POS_Y_MM = ggr.REF_PAGE_TITLE_POS_Y_MM
 TEXT_TITLE = "- BiblioReport -\nInitialisation de l'analyse"
@@ -85,6 +86,7 @@ PAGES_LABELS = dict(Word="Bibliographie Word",
                     Plots="KPI plots")
 APPLICATION_WINDOW_TITLE = "BiblioReport Création de documents et de graphes"
 TEXT_YEAR_PI = "Sélection de(s) année(s)"
+TEXT_YEAR_KPI = "Sélection de l'année"
 
 TEXT_KW_ANALYSIS = "Lancer le tracé"
 TEXT_DEPT = "Département ?"

@@ -222,24 +222,40 @@ def _keywords_cloud(txt, out, bckg, h, w, mxw, corpus_year, dept, kw_type, datat
     if verbose:
         print(message)
 
-def plot_countries_analysis(corpus_year,bibliometer_path,datatype):
+def sets_title_countries_analysis(continents_df, nbr_pubi_france, corpus_year, datatype, institute):
+    title = f'Institut {institute}, Année {corpus_year}<br> '
+    title = title + f'Base de données {datatype}, Nbre publications françaises : {nbr_pubi_france}<br> '
+    for idx,row in continents_df.iterrows():
+        title = title + f'{row[0]}: {row[1]}; '
+    return title
+
+def plot_countries_analysis(corpus_year,bibliometer_path,datatype, institute):
     
     # Setting useful aliases
     unknown_alias            = bp.UNKNOWN
     geo_file_alias = pg.ARCHI_YEAR["country weight file name"]+' '+str(corpus_year)
+    cont_file_alias = pg.ARCHI_YEAR["continent weight file name"]+' '+str(corpus_year)
     
     # Setting useful paths
     path_dic = set_paths(bibliometer_path,corpus_year,datatype)
-    geo_analysis_folder_path = path_dic["geo"] 
+    geo_analysis_folder_path = path_dic["geo"]
+    continent_file           = geo_analysis_folder_path / Path(cont_file_alias+".xlsx")              
     geo_file                 = geo_analysis_folder_path / Path(geo_file_alias+".xlsx")
     html_path                = geo_analysis_folder_path/ Path(geo_file_alias+".html")
-    
-    countries= pd.read_excel(geo_file,engine="openpyxl")
+     
+    countries = pd.read_excel(geo_file,engine="openpyxl")
     countries['Code'] = countries['Pays'].map(gr.DIC_CODE_COUNTRIES)
-    countries['number_publis'] =  countries.apply(lambda row: len(row['Liste des Pub_ids'].split(';')),axis=1)
-                                                                            
+    #countries['number_publis'] =  countries.apply(lambda row: len(row['Liste des Pub_ids'].split(';')),axis=1)
+    
+    continents_df = pd.read_excel(continent_file,engine="openpyxl")
+    
     list_countries           = countries['Code'] .tolist() 
-    nbr_articles_per_country = countries['number_publis'].tolist()
+    nbr_articles_per_country = countries['Nombre de publications'].tolist()
+    ifx_france = list_countries.index("FRA")
+    nbr_pubi_france = nbr_articles_per_country[ifx_france]
+    nbr_articles_per_country[ifx_france] = 1
+    
+    title = sets_title_countries_analysis(continents_df, nbr_pubi_france, corpus_year, datatype, institute)
     
     layout = dict(geo={'scope': 'world'})
     
@@ -253,6 +269,7 @@ def plot_countries_analysis(corpus_year,bibliometer_path,datatype):
                 colorbar = {'title':'# Publications'})
     
     map = go.Figure(data=[data], layout=layout)
+    map.update_layout(title_text=title, title_x=0.5)
     map.write_html(str(html_path)) 
     
     # show file 
