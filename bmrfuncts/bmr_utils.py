@@ -4,6 +4,7 @@ Three kpi are ploted : the keywords using wordcloud; the numbers of paper coauth
 as a geoplot representation; the number of articles per journal represented as a barchart. 
 In this module:
     - dept stand for the departement of the institute
+    - the prfix kw stands for Key Word kw_type can be :AK, IK, TK
     - corpus_year is the year of the corpus extraction
     - datatype is the name of the databases used to build the corpus (WoS, Scopus, Hal)
     - bibliometer_path is the root path of the data base (for more detail consults https://github.com/TickyWill/BiblioMeter/blob/main/BiblioMeterUserManual-Fr.pdf)
@@ -182,14 +183,35 @@ def create_kw_cloud(institute, corpus_year, kw_type, dept, bibliometer_path,data
                        corpus_year,
                        dept,
                        kw_type,
-                       datatype,)
+                       datatype,
+                       institute,)
 
     message = ("\n    Wordcloud images for all keywords types "
                f"and all departments saved in : \n {kw_analysis_folder_path}")
     if verbose:
         print(message, "\n")
         
-def _keywords_cloud(txt, out, bckg, h, w, mxw, corpus_year, dept, kw_type, datatype, verbose = False):
+def _set_wordcloud_title(corpus_year, dept, kw_type, datatype, institute):
+    
+    ''' Sets the title of wordcoud plot'''
+    
+    title = f'Année: {corpus_year}, Institut: {institute},Départemement: {dept}\n' 
+    title = title + f'Mot-clé: {kw_type}, Base de données : {datatype}'
+    
+    return title
+    
+def _keywords_cloud(txt,
+                    out,
+                    bckg,
+                    h,
+                    w,
+                    mxw,
+                    corpus_year,
+                    dept,
+                    kw_type,
+                    datatype,
+                    institute,
+                    verbose = False):
     """
     Plots the wordcloud of the text `txt`.
     
@@ -214,7 +236,8 @@ def _keywords_cloud(txt, out, bckg, h, w, mxw, corpus_year, dept, kw_type, datat
     cloud = wc.generate(txt)
     cloud.to_file(out)
     plt.imshow(wc, interpolation='bilinear')
-    plt.title(f'Année: {corpus_year}, Départemement: {dept}, Mot-clé: {kw_type}, Base de données : {datatype}\n')
+    title = _set_wordcloud_title(corpus_year, dept, kw_type, datatype, institute)
+    plt.title(title)
     plt.axis("off")
     plt.show()
 
@@ -222,14 +245,25 @@ def _keywords_cloud(txt, out, bckg, h, w, mxw, corpus_year, dept, kw_type, datat
     if verbose:
         print(message)
 
-def sets_title_countries_analysis(continents_df, nbr_pubi_france, corpus_year, datatype, institute):
+def _sets_title_countries_analysis(continents_df,
+                                  nbr_pubi_france,
+                                  corpus_year,
+                                  datatype,
+                                  institute):
+                                      
+    '''Sets the title of the html plot
+    '''                                 
     title = f'Institut {institute}, Année {corpus_year}<br> '
     title = title + f'Base de données {datatype}, Nbre publications françaises : {nbr_pubi_france}<br> '
     for idx,row in continents_df.iterrows():
         title = title + f'{row[0]}: {row[1]}; '
     return title
 
-def plot_countries_analysis(corpus_year,bibliometer_path,datatype, institute):
+def plot_countries_analysis(corpus_year,bibliometer_path, datatype, institute):
+    
+    '''Interactive geographic representatin of the number of articles co-authored  by the `institute`
+    and a country. 
+    '''
     
     # Setting useful aliases
     unknown_alias            = bp.UNKNOWN
@@ -241,22 +275,23 @@ def plot_countries_analysis(corpus_year,bibliometer_path,datatype, institute):
     geo_analysis_folder_path = path_dic["geo"]
     continent_file           = geo_analysis_folder_path / Path(cont_file_alias+".xlsx")              
     geo_file                 = geo_analysis_folder_path / Path(geo_file_alias+".xlsx")
-    html_path                = geo_analysis_folder_path/ Path(geo_file_alias+".html")
-     
+    
+    # Reads the country and continent Excel files and remap countries with there iso code   
     countries = pd.read_excel(geo_file,engine="openpyxl")
     countries['Code'] = countries['Pays'].map(gr.DIC_CODE_COUNTRIES)
-    #countries['number_publis'] =  countries.apply(lambda row: len(row['Liste des Pub_ids'].split(';')),axis=1)
-    
     continents_df = pd.read_excel(continent_file,engine="openpyxl")
     
+    # Builds the relevent list forcing the number of publication of France to 1
     list_countries           = countries['Code'] .tolist() 
     nbr_articles_per_country = countries['Nombre de publications'].tolist()
     ifx_france = list_countries.index("FRA")
     nbr_pubi_france = nbr_articles_per_country[ifx_france]
     nbr_articles_per_country[ifx_france] = 1
     
-    title = sets_title_countries_analysis(continents_df, nbr_pubi_france, corpus_year, datatype, institute)
+    # Sets the title of the map
+    title = _sets_title_countries_analysis(continents_df, nbr_pubi_france, corpus_year, datatype, institute)
     
+    # Builds the map
     layout = dict(geo={'scope': 'world'})
     
     data = dict(type='choropleth',
@@ -270,14 +305,61 @@ def plot_countries_analysis(corpus_year,bibliometer_path,datatype, institute):
     
     map = go.Figure(data=[data], layout=layout)
     map.update_layout(title_text=title, title_x=0.5)
-    map.write_html(str(html_path)) 
     
-    # show file 
-    webbrowser.open(html_path)
+    # Save the map
+    _save_plot_countries_analysis(map,bibliometer_path,corpus_year, datatype) 
+    
+    # show html plot 
+    map.show()
+    
+def _save_plot_countries_analysis(map,bibliometer_path,corpus_year, datatype):
+    
+    # Setting useful aliases
+    geo_file_alias = pg.ARCHI_YEAR["country weight file name"]+' '+str(corpus_year)
+    
+    # Setting useful paths
+    path_dic = set_paths(bibliometer_path,corpus_year,datatype)
+    geo_analysis_folder_path = path_dic["geo"]
+    html_path                = geo_analysis_folder_path/ Path(geo_file_alias+".html")
+    png_path                 = geo_analysis_folder_path/ Path(geo_file_alias+".png")
+    
+    # Save as an htm file
+    map.write_html(str(html_path))
+    
+    # Save as an png file
+    map.write_image(png_path)
+    
+    # plot png
+    _plot__countries_analysis_png(bibliometer_path,corpus_year, datatype)
+    
+def _plot__countries_analysis_png(bibliometer_path,corpus_year, datatype):
+    
+    ''' Plots the png file
+    '''
+    
+    # Setting useful aliases
+    geo_file_alias = pg.ARCHI_YEAR["country weight file name"]+' '+str(corpus_year)
+    
+    # Setting useful paths
+    path_dic = set_paths(bibliometer_path,corpus_year,datatype)
+    geo_analysis_folder_path = path_dic["geo"]
+    png_path                 = geo_analysis_folder_path/ Path(geo_file_alias+".png")
+    
+    #plot png image
+    fig, ax = plt.subplots(nrows=1, ncols=1)
+    img = mpimg.imread(png_path)
+    imgplot = ax.imshow(img)
+    ax.axis('off')
+    plt.show()
+
     
 def _reads_kpi_dict(institute, bibliometer_path, corpus_year, org_tup, dept, datatype):
     
-    #Setting aliases for updating KPIs database
+    '''Builds the dictionary `dic_kpi` of the kpi (key performance indicator) out of the kpi database.
+    The kpi database is an Excel file sets by BiblioMeter. `dic_kpi` = {kpi indicator: kpi valu}.
+    '''
+    
+    #Setting aliases for KPIs database
     kpi_file_base_alias      = pg.ARCHI_RESULTS["kpis file name base"]
     
     # Setting paths for saving results
@@ -327,7 +409,7 @@ def _builds_if_bargraph_title(kpi_dict,
 
     return title 
 
-def plot_if_png(dept_png_file_path,corpus_year,dept):
+def _plot_if_png(dept_png_file_path,corpus_year,dept):
     
     ''' Plots the png file `dept_png_file_path`
     '''
@@ -452,7 +534,7 @@ def plot_if_analysis(institute,
                                        if_col, dept_kpi_dict, journal_col_alias, datatype, part,)
         message,dept_png_file_path  = _save_dept_barchart(barchart, dept, if_col,
                                        if_analysis_folder_path, part)
-        plot_if_png(dept_png_file_path,corpus_year,dept)
+        _plot_if_png(dept_png_file_path,corpus_year,dept)
         return message
 
     # Setting useful aliases
