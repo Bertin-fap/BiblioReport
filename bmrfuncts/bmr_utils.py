@@ -306,11 +306,18 @@ def plot_countries_analysis(corpus_year,bibliometer_path, datatype, institute):
     map = go.Figure(data=[data], layout=layout)
     map.update_layout(title_text=title, title_x=0.5)
     
-    # Save the map
-    _save_plot_countries_analysis(map,bibliometer_path,corpus_year, datatype) 
-    
     # show html plot 
     map.show()
+    
+    # Save the map as html and png files
+    _save_plot_countries_analysis(map,bibliometer_path,corpus_year, datatype) 
+    
+    # plot png
+    png_plot = messagebox.askquestion('png plot','Voulez vous tracer le fichier .png')
+    if png_plot == "yes":
+        _plot_countries_analysis_png(bibliometer_path,corpus_year, datatype)
+    
+ 
     
 def _save_plot_countries_analysis(map,bibliometer_path,corpus_year, datatype):
     
@@ -329,10 +336,8 @@ def _save_plot_countries_analysis(map,bibliometer_path,corpus_year, datatype):
     # Save as an png file
     map.write_image(png_path)
     
-    # plot png
-    _plot__countries_analysis_png(bibliometer_path,corpus_year, datatype)
     
-def _plot__countries_analysis_png(bibliometer_path,corpus_year, datatype):
+def _plot_countries_analysis_png(bibliometer_path,corpus_year, datatype):
     
     ''' Plots the png file
     '''
@@ -534,7 +539,9 @@ def plot_if_analysis(institute,
                                        if_col, dept_kpi_dict, journal_col_alias, datatype, part,)
         message,dept_png_file_path  = _save_dept_barchart(barchart, dept, if_col,
                                        if_analysis_folder_path, part)
-        _plot_if_png(dept_png_file_path,corpus_year,dept)
+        png_plot = messagebox.askquestion('png plot','Voulez vous tracer le fichier .png')
+        if png_plot == "yes":                                
+            _plot_if_png(dept_png_file_path,corpus_year,dept)
         return message
 
     # Setting useful aliases
