@@ -15,7 +15,7 @@ from screeninfo import get_monitors
 
 # Local imports
 
-import bmrgui.gui_rglobals as gg
+import brgui.gui_rglobals as gg
 import bmfuncts.institute_globals as ig
 import bmfuncts.pub_globals as pg
 from bmgui.gui_utils import existing_corpuses
@@ -26,12 +26,12 @@ from bmgui.gui_utils import mm_to_px
 from bmgui.gui_utils import place_after
 from bmgui.gui_utils import show_frame
 from bmgui.gui_utils import str_size_mm
-from bmrgui.gui_rutils import set_page_title
+from brgui.gui_rutils import set_page_title
 from bmgui.gui_utils import set_exit_button
 from bmfuncts.useful_functs import create_archi
 from bmfuncts.useful_functs import set_rawdata
-from bmrgui.PageWord import create_word_biblio
-from bmrgui.PagePlots import create_analysis
+from brgui.PageWord import create_word_biblio
+from brgui.PagePlots import create_analysis
 from bmgui.gui_utils import place_bellow
 from bmgui.main_page import SetAuthorCopyright
 from bmgui.main_page import SetLaunchButton

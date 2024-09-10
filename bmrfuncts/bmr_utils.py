@@ -3,7 +3,7 @@ Toolbox of functions used to plot the key factors indicator (kpi) computed using
 Three kpi are ploted : the keywords using wordcloud; the numbers of paper coauthored with foreign countries
 as a geoplot representation; the number of articles per journal represented as a barchart. 
 In this module:
-    - dept stand for the departement of the institute
+    - dept stands for the departement of the institute
     - the prfix kw stands for Key Word kw_type can be :AK, IK, TK
     - corpus_year is the year of the corpus extraction
     - datatype is the name of the databases used to build the corpus (WoS, Scopus, Hal)
@@ -53,7 +53,7 @@ def set_paths(bibliometer_path,corpus_year,datatype):
     geo_analysis_folder_alias = pg.ARCHI_RESULTS["countries"]
     kpi_analysis_folder_alias = pg.ARCHI_RESULTS["kpis"]
     
-    # Find the directory name associated with datatype
+    # Finding the directory name associated with datatype
     datatype_idx = pg.DATATYPE_LIST.index(datatype)
     datatype_dir = pg.ARCHI_RESULTS[pg.DATATYPE_LIST[datatype_idx]]
     
@@ -83,10 +83,10 @@ def parse_kw_filename(bibliometer_path, corpus_year, metric, extension, datatype
     path_dic = set_paths(bibliometer_path,corpus_year,datatype)
     
     if metric == "IF":
-        metric_analysis_folder_path = path_dic["ifs"] #if_analysis_folder_path
+        metric_analysis_folder_path = path_dic["ifs"] # if_analysis_folder_path
         pattern = re.compile('(?P<kw>^\w*\s)(?P<year>\d{4})-(?P<dep>\w*)\.')
     elif metric == "KW":
-        metric_analysis_folder_path = path_dic["kw"] #kw_analysis_folder_path
+        metric_analysis_folder_path = path_dic["kw"] # kw_analysis_folder_path
         pattern = re.compile('(?P<dep>^\w*\s)(?P<year>\d{4})-(?P<kw>\w*)\.')
 
     kw_tup = namedtuple('kw_tup',['dep' , 'year', 'kw'])
@@ -306,13 +306,13 @@ def plot_countries_analysis(corpus_year,bibliometer_path, datatype, institute):
     map = go.Figure(data=[data], layout=layout)
     map.update_layout(title_text=title, title_x=0.5)
     
-    # show html plot 
+    # showing html plot 
     map.show()
     
-    # Save the map as html and png files
+    # Saving the map as html and png files
     _save_plot_countries_analysis(map,bibliometer_path,corpus_year, datatype) 
     
-    # plot png
+    # ploting png
     png_plot = messagebox.askquestion('png plot','Voulez vous tracer le fichier .png')
     if png_plot == "yes":
         _plot_countries_analysis_png(bibliometer_path,corpus_year, datatype)
@@ -330,10 +330,10 @@ def _save_plot_countries_analysis(map,bibliometer_path,corpus_year, datatype):
     html_path                = geo_analysis_folder_path/ Path(geo_file_alias+".html")
     png_path                 = geo_analysis_folder_path/ Path(geo_file_alias+".png")
     
-    # Save as an htm file
+    # Saving as an htm file
     map.write_html(str(html_path))
     
-    # Save as an png file
+    # Saving as an png file
     map.write_image(png_path)
     
     
@@ -350,7 +350,7 @@ def _plot_countries_analysis_png(bibliometer_path,corpus_year, datatype):
     geo_analysis_folder_path = path_dic["geo"]
     png_path                 = geo_analysis_folder_path/ Path(geo_file_alias+".png")
     
-    #plot png image
+    # ploting png image
     fig, ax = plt.subplots(nrows=1, ncols=1)
     img = mpimg.imread(png_path)
     imgplot = ax.imshow(img)
@@ -364,7 +364,7 @@ def _reads_kpi_dict(institute, bibliometer_path, corpus_year, org_tup, dept, dat
     The kpi database is an Excel file sets by BiblioMeter. `dic_kpi` = {kpi indicator: kpi valu}.
     '''
     
-    #Setting aliases for KPIs database
+    # Setting aliases for KPIs database
     kpi_file_base_alias      = pg.ARCHI_RESULTS["kpis file name base"]
     
     # Setting paths for saving results
@@ -433,6 +433,7 @@ def _create_if_barchart(corpus_year,
                         kpi_dict,
                         journal_col_alias,
                         datatype,
+                        bar_height_px,
                         part = "all",
                         ):
     """
@@ -467,10 +468,11 @@ def _create_if_barchart(corpus_year,
                          journal_short_col_alias: 'Short name'}
     nb_articles_range = gr.BAR_X_RANGE
     barchart_width    = gr.BAR_WIDTH
-    barchart_height   = gr.BAR_HEIGHT
+    barchart_height = bar_height_px
     nb_journals       = kpi_dict[pg.KPI_KEYS_ORDER_DICT[7]]
     if nb_journals <= gr.BAR_Y_MAX or part != "all":
-        barchart_height = round(gr.BAR_HEIGHT / gr.BAR_HEIGHT_RATIO)
+        barchart_height = round(bar_height_px / gr.BAR_HEIGHT_RATIO)
+    print(barchart_height)
     color_range       = gr.BAR_COLOR_RANGE
     color_scale       = gr.BAR_COLOR_SCALE
 
@@ -517,6 +519,7 @@ def plot_if_analysis(institute,
                      dept,
                      bibliometer_path,
                      datatype,
+                     bar_height_px,
                      verbose = True):
     """
     Plots Impact Factor (IF) bargraph using the excel files generated by BiblioMeter. Two types of excel files are
@@ -536,7 +539,7 @@ def plot_if_analysis(institute,
                               part):
                                   
         barchart = _create_if_barchart(corpus_year, dept, bar_chart_if_df,
-                                       if_col, dept_kpi_dict, journal_col_alias, datatype, part,)
+                                       if_col, dept_kpi_dict, journal_col_alias, datatype, bar_height_px, part)
         message,dept_png_file_path  = _save_dept_barchart(barchart, dept, if_col,
                                        if_analysis_folder_path, part)
         png_plot = messagebox.askquestion('png plot','Voulez vous tracer le fichier .png')

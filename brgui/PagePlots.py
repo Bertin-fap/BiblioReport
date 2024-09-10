@@ -19,7 +19,8 @@ import plotly.offline as py
 import plotly.graph_objs as go
 
 # Local imports
-import bmrgui.gui_rglobals as gg
+import brgui.gui_rglobals as gg
+import bmrfuncts.functs_globals as gr
 import bmfuncts.pub_globals as pg
 from bmgui.gui_utils import font_size
 from bmgui.gui_utils import mm_to_px
@@ -72,6 +73,7 @@ def create_analysis(self, master, page_name, institute, bibliometer_path, dataty
                          dep_select,
                          bibliometer_path,
                          datatype,
+                         bar_height_px,
                          verbose = True)
         
     def _launch_kw_plot():
@@ -109,6 +111,7 @@ def create_analysis(self, master, page_name, institute, bibliometer_path, dataty
     year_button_x_pos = mm_to_px(gg.REF_YEAR_BUT_POS_X_MM * master.width_sf_mm, gg.PPI)     # 10
     year_button_y_pos = mm_to_px(gg.REF_YEAR_BUT_POS_Y_MM * master.height_sf_mm, gg.PPI)    # 26
     dy_year = -6
+    bar_height_px = mm_to_px(gr.BAR_HEIGHT * master.height_sf_mm, gg.PPI)
     
 
     # Setting common attributes
@@ -142,10 +145,8 @@ def create_analysis(self, master, page_name, institute, bibliometer_path, dataty
     self.Label_years.place(x=year_button_x_pos, y=year_button_y_pos)
 
     place_after(self.Label_years, self.OptionButton_years, dy=dy_year)
-    
-    ######################################################
+
     # Creating and setting impact-factors analysis widgets
-    ######################################################
     
     # - Setting title
     if_analysis_font = tkFont.Font(family=gg.FONT_NAME,
@@ -170,7 +171,7 @@ def create_analysis(self, master, page_name, institute, bibliometer_path, dataty
     place_bellow(if_analysis_label,
                  help_label_if)
                  
-        # Creating and setting department selection widgets
+    # Creating and setting department selection widgets
     if_path = bibliometer_path / Path(variable_years.get()) / Path('5 - Analyses\IFs')
     if_tup = parse_kw_filename(bibliometer_path,
                                variable_years.get().strip(),
@@ -183,7 +184,7 @@ def create_analysis(self, master, page_name, institute, bibliometer_path, dataty
     mode_list =['png','HTML']
     default_mode = mode_list[-1]
     
-    ## - Creating departement selection label
+    # - Creating departement selection label
     Label_if = tk.Label(self,
                         text=gg.TEXT_DEPT,
                         font=help_label_font)

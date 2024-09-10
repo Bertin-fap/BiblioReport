@@ -3,7 +3,7 @@ __all__ = ['set_page_title']
 import tkinter as tk
 from tkinter import font as tkFont
 
-import bmrgui.gui_rglobals as gg
+import brgui.gui_rglobals as gg
 from bmgui.gui_utils import font_size
 from bmgui.gui_utils import mm_to_px
 

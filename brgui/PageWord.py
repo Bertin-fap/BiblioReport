@@ -10,7 +10,7 @@ from bmgui.gui_utils import mm_to_px
 
 from bmgui.gui_utils import last_available_years
 import bmgui.gui_globals as gg
-import bmrgui.gui_rglobals as ggr
+import brgui.gui_rglobals as ggr
 
 def create_word_biblio(self,master, page_name, institute, bibliometer_path, datatype):
 
@@ -32,7 +32,7 @@ def create_word_biblio(self,master, page_name, institute, bibliometer_path, data
         val = [list_items[i] for i in  listbox.curselection()]
         print(val)
         
-    from bmrgui.main_page import AppMain
+    from brgui.main_page import AppMain
 
     # Setting effective font sizes and positions (numbers are reference values)
     eff_etape_font_size      = font_size(gg.REF_ETAPE_FONT_SIZE,   AppMain.width_sf_min)
