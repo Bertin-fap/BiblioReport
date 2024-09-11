@@ -20,7 +20,7 @@ import plotly.graph_objs as go
 
 # Local imports
 import brgui.gui_rglobals as gg
-import bmrfuncts.functs_globals as gr
+import brfuncts.functs_globals as gr
 import bmfuncts.pub_globals as pg
 from bmgui.gui_utils import font_size
 from bmgui.gui_utils import mm_to_px
@@ -31,10 +31,10 @@ from bmfuncts.pub_analysis import if_analysis
 from bmfuncts.pub_analysis import coupling_analysis
 from bmfuncts.pub_analysis import keywords_analysis
 from bmfuncts.config_utils import set_org_params
-from bmrfuncts.bmr_utils import parse_kw_filename
-from bmrfuncts.bmr_utils import create_kw_cloud
-from bmrfuncts.bmr_utils import plot_countries_analysis
-from bmrfuncts.bmr_utils import plot_if_analysis
+from brfuncts.bmr_utils import parse_kw_filename
+from brfuncts.bmr_utils import create_kw_cloud
+from brfuncts.bmr_utils import plot_countries_analysis
+from brfuncts.bmr_utils import plot_if_analysis
 
 
 # Standard library imports
@@ -80,6 +80,8 @@ def create_analysis(self, master, page_name, institute, bibliometer_path, dataty
         # Getting year selection, keyword selection and departement selection
         year_select = variable_years.get()
         kw_select = variable_kw.get()
+        kw_inv_dict = dict(zip(gg.KW_DICT.values(),gg.KW_DICT.keys()))
+        kw_select = kw_inv_dict[kw_select]
         dep_select = variable_dep.get()
         
         
@@ -282,6 +284,7 @@ def create_analysis(self, master, page_name, institute, bibliometer_path, dataty
                            'KW',
                            '.xlsx',
                            datatype) # kw list of nametuples kw.dep, kw.year, kw.kw
+                           
     default_dep = kw.dep[-1]
     variable_dep = tk.StringVar(self)
     variable_dep.set(default_dep)
@@ -308,7 +311,8 @@ def create_analysis(self, master, page_name, institute, bibliometer_path, dataty
                         font=help_label_font)
                          
     # Creating and setting keywords selection widgets
-    default_kw = kw.kw[-1]
+    kw_longtext = [gg.KW_DICT[x] for x in kw.kw]
+    default_kw = kw_longtext[-1]
     variable_kw = tk.StringVar(self)
     variable_kw.set(default_kw)
                   
@@ -317,7 +321,7 @@ def create_analysis(self, master, page_name, institute, bibliometer_path, dataty
                                         size=eff_buttons_font_size)
     OptionButton_kw = tk.OptionMenu(self,
                                     variable_kw,
-                                     *kw.kw)
+                                    *kw_longtext)
     OptionButton_kw.config(font=self.font_OptionButton_years)
     
     place_after(OptionButton_dep, Label_kw, dx=70, dy=10)

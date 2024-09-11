@@ -30,8 +30,8 @@ from brgui.gui_rutils import set_page_title
 from bmgui.gui_utils import set_exit_button
 from bmfuncts.useful_functs import create_archi
 from bmfuncts.useful_functs import set_rawdata
-from brgui.PageWord import create_word_biblio
-from brgui.PagePlots import create_analysis
+from brgui.pageword import create_word_biblio
+from brgui.pageplots import create_analysis
 from bmgui.gui_utils import place_bellow
 from bmgui.main_page import SetAuthorCopyright
 from bmgui.main_page import SetLaunchButton
@@ -256,7 +256,7 @@ class AppMain(tk.Tk):
         #self.lift()
         self.attributes("-topmost", True)
         self.after_idle(self.attributes,'-topmost', False)
-        icon_path = Path(__file__).parent.parent / Path('bmrfuncts') / Path(pg.CONFIG_FOLDER)
+        icon_path = Path(__file__).parent.parent / Path('brfuncts') / Path(pg.CONFIG_FOLDER)
         icon_path = icon_path / Path('BM-logo.ico')
         self.iconbitmap(icon_path)
         #self.REP = list()

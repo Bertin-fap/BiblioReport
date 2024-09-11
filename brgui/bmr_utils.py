@@ -33,7 +33,7 @@ import plotly.express as px
 from wordcloud import WordCloud
 import plotly.offline as py
 import plotly.graph_objs as go
-import bmrfuncts.functs_globals as gr
+import brfuncts.functs_globals as rg
 from bmfuncts.rename_cols import set_final_col_names
 from bmfuncts.config_utils import set_org_params
 from bmfuncts.rename_cols import set_final_col_names
@@ -145,7 +145,7 @@ def create_kw_cloud(institute, corpus_year, kw_type, dept, bibliometer_path,data
     kw_analysis_folder_path = path_dic["kw"]
     
     # Setting the maximum length of the words for the cloud
-    kw_length = gr.CLOUD_MAX_WORDS_LENGTH
+    kw_length = rg.CLOUD_MAX_WORDS_LENGTH
 
     # Builds file name and exit if the file do nont exist
     dept_xlsx_file_path = kw_analysis_folder_path / Path(f'{dept.strip()} {corpus_year}-{kw_type}.xlsx')
@@ -176,10 +176,10 @@ def create_kw_cloud(institute, corpus_year, kw_type, dept, bibliometer_path,data
         dept_png_file_path = kw_analysis_folder_path / Path(f"{kw_type} {corpus_year}-{dept}.png")
         _keywords_cloud(dept_kw_txt,
                        dept_png_file_path,
-                       gr.CLOUD_BCKG,
-                       gr.CLOUD_HEIGHT,
-                       gr.CLOUD_WIDTH,
-                       gr.CLOUD_MAX_WORDS,
+                       rg.CLOUD_BCKG,
+                       rg.CLOUD_HEIGHT,
+                       rg.CLOUD_WIDTH,
+                       rg.CLOUD_MAX_WORDS,
                        corpus_year,
                        dept,
                        kw_type,
@@ -278,7 +278,7 @@ def plot_countries_analysis(corpus_year,bibliometer_path, datatype, institute):
     
     # Reads the country and continent Excel files and remap countries with there iso code   
     countries = pd.read_excel(geo_file,engine="openpyxl")
-    countries['Code'] = countries['Pays'].map(gr.DIC_CODE_COUNTRIES)
+    countries['Code'] = countries['Pays'].map(rg.DIC_CODE_COUNTRIES)
     continents_df = pd.read_excel(continent_file,engine="openpyxl")
     
     # Builds the relevent list forcing the number of publication of France to 1
@@ -466,15 +466,15 @@ def _create_if_barchart(corpus_year,
     # Setting barchart parameters
     labels_dict       = {articles_nb_col_alias  : 'Articles number',
                          journal_short_col_alias: 'Short name'}
-    nb_articles_range = gr.BAR_X_RANGE
-    barchart_width    = gr.BAR_WIDTH
+    nb_articles_range = rg.BAR_X_RANGE
+    barchart_width    = rg.BAR_WIDTH
     barchart_height = bar_height_px
     nb_journals       = kpi_dict[pg.KPI_KEYS_ORDER_DICT[7]]
-    if nb_journals <= gr.BAR_Y_MAX or part != "all":
-        barchart_height = round(bar_height_px / gr.BAR_HEIGHT_RATIO)
+    if nb_journals <= rg.BAR_Y_MAX or part != "all":
+        barchart_height = round(bar_height_px / rg.BAR_HEIGHT_RATIO)
     print(barchart_height)
-    color_range       = gr.BAR_COLOR_RANGE
-    color_scale       = gr.BAR_COLOR_SCALE
+    color_range       = rg.BAR_COLOR_RANGE
+    color_scale       = rg.BAR_COLOR_SCALE
 
     barchart = px.bar(data_frame             = plot_df,
                       x                      = articles_nb_col_alias,

@@ -5,5 +5,5 @@ __version__ = '4.0.0'
 __author__ = 'BiblioMeter team'
 __license__ = 'MIT'
 
-from bmrfuncts.bmr_utils import *
-from bmrfuncts.functs_globals import *
+from brfuncts.bmr_utils import *
+from brfuncts.functs_globals import *

@@ -7,6 +7,7 @@ __all__ = ['ADD_SPACE_MM',
            'HELP_GEO_PLOT',
            'HELP_IF_PLOT',
            'HELP_KW_PLOT',
+           'KW_DICT',
            'PPI',
            'REF_BMF_POS_X_MM',
            'REF_BMF_POS_Y_MM',
@@ -96,3 +97,6 @@ BUTT_GEOPLOT = "Lancer le tracé"
 TEXT_WORDCLOUD = "Tracé des nuages de mots des mots-clés"
 TEXT_IFPLOT = "Tracé des Facteurs d'Impacts du corpus bibliographique"
 TEXT_IF_ANALYSIS = "Lancer le tracé"
+KW_DICT = dict(AK = "Authors",
+               TK = "Title",
+               IK = "Index")
