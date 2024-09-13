@@ -3,6 +3,11 @@ __all_ = ['CLOUD_BCKG',
 		  'CLOUD_WIDTH',
 		  'CLOUD_MAX_WORDS',
 		  'CLOUD_MAX_WORDS_LENGTH',
+          'COOC_AUTHORIZED_ITEMS',
+          'COOC_AUTHORIZED_ITEMS_DICT',
+          'COOC_HTML_PARAM',
+          'COUNTRIES_GPS',
+          'COUPL_AUTHORIZED_ITEMS',
 		  'BAR_Y_LABEL_MAX',
           'BAR_X_RANGE',
 		  'BAR_Y_MAX',
@@ -13,6 +18,9 @@ __all_ = ['CLOUD_BCKG',
 		  'BAR_COLOR_SCALE'
 		  'COUNTRIES_CODES_DICT',
           'COUNTRIES_CONTINENT_DICT',
+          'NODE_SIZE_REF',
+          'SIZE_MIN',
+          'UNKNOWN'
 		  ]
           
 # Standard library imports
@@ -40,3 +48,33 @@ BAR_COLOR_SCALE  = px.colors.sequential.Rainbow
 
 COUNTRIES_CODES_DICT = bp.COUNTRIES_CODES
 COUNTRIES_CONTINENT_DICT = bp.COUNTRIES_CONTINENT
+COUNTRIES_GPS = bp.COUNTRIES_GPS
+UNKNOWN = 'unknown'
+
+# Parameters of graph construction and  plot
+COOC_HTML_PARAM = {'algo'      : 'barnes',
+                   'height'    : 1000,
+                   'width'     : 1000,
+                   'bgcolor'   : '#9E9E9E', #     '#EAEDED',
+                   'font_color': 'black',
+                  }
+LABEL_MEANING = {'AU':'Authors',              # ex: Nom1 J, Nom2 E, Nom3 J-P
+                 'CU':'Countries',            # ex: France, United States
+                 'I' :'Institutions',         # ex: Acronyme1, Acronyme2
+                 'DT':'Document types',       # ex: Review, Article, Proceeding
+                 'J' :'Journals',          
+                 'AK':'Authors keywords',     # ex: BIOMASS, SOLAR FUEL
+                 'IK':'Journal keywords',
+                 'TK':'Title keywords',
+                 'S' :'Subjects',             # ex: Chemical Engineering,Engineering 
+                 'S2':'Sub-subjects',         # ex: Applied Mathematics, Organic Chemistry     
+                 'R' :'References',
+                 'RJ':'References journals',
+                 'LA':'Languages',            # ex: English, French
+                 'Y' :'Years',                # ex: 2019
+                }
+COOC_AUTHORIZED_ITEMS = ['AU','CU','AK','IK','TK','S','S2']
+COOC_AUTHORIZED_ITEMS_DICT = {label:name for name,label in LABEL_MEANING.items() 
+                              if name in COOC_AUTHORIZED_ITEMS}
+NODE_SIZE_REF = 30
+SIZE_MIN = 1 # Minimum size of co-occurrence nodes

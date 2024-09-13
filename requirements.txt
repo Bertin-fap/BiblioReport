@@ -1,5 +1,9 @@
 kaleido==0.1.*
 matplotlib==3.8.4
+more-itertools
+networkx
 plotly==5.17.0
+pyvis
 screeninfo==0.8.1
 wordcloud==1.9.2
+

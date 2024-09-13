@@ -10,7 +10,7 @@ from bmgui.gui_utils import mm_to_px
 
 from bmgui.gui_utils import last_available_years
 import bmgui.gui_globals as gg
-import brgui.gui_rglobals as ggr
+import brgui.gui_globals as ggr
 
 def create_word_biblio(self,master, page_name, institute, bibliometer_path, datatype):
 

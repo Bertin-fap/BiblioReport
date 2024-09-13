@@ -19,8 +19,8 @@ import plotly.offline as py
 import plotly.graph_objs as go
 
 # Local imports
-import brgui.gui_rglobals as gg
-import brfuncts.functs_globals as gr
+import brgui.gui_globals as gg
+import brfuncts.functs_globals as rg
 import bmfuncts.pub_globals as pg
 from bmgui.gui_utils import font_size
 from bmgui.gui_utils import mm_to_px
@@ -31,10 +31,10 @@ from bmfuncts.pub_analysis import if_analysis
 from bmfuncts.pub_analysis import coupling_analysis
 from bmfuncts.pub_analysis import keywords_analysis
 from bmfuncts.config_utils import set_org_params
-from brfuncts.bmr_utils import parse_kw_filename
-from brfuncts.bmr_utils import create_kw_cloud
-from brfuncts.bmr_utils import plot_countries_analysis
-from brfuncts.bmr_utils import plot_if_analysis
+from brfuncts.br_analyze import parse_kw_filename
+from brfuncts.br_analyze import create_kw_cloud
+from brfuncts.br_analyze import plot_countries_analysis
+from brfuncts.br_analyze import plot_if_analysis
 
 
 # Standard library imports
@@ -113,7 +113,7 @@ def create_analysis(self, master, page_name, institute, bibliometer_path, dataty
     year_button_x_pos = mm_to_px(gg.REF_YEAR_BUT_POS_X_MM * master.width_sf_mm, gg.PPI)     # 10
     year_button_y_pos = mm_to_px(gg.REF_YEAR_BUT_POS_Y_MM * master.height_sf_mm, gg.PPI)    # 26
     dy_year = -6
-    bar_height_px = mm_to_px(gr.BAR_HEIGHT * master.height_sf_mm, gg.PPI)
+    bar_height_px = mm_to_px(rg.BAR_HEIGHT * master.height_sf_mm, gg.PPI)
     
 
     # Setting common attributes

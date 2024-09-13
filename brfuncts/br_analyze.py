@@ -26,7 +26,7 @@ import webbrowser
 # Third party imports
 import bmfuncts.pub_globals as pg
 import BiblioParsing.BiblioSpecificGlobals as bp
-import brgui.gui_rglobals as gg
+import brgui.gui_globals as gg
 import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -176,7 +176,8 @@ def create_kw_cloud(institute, corpus_year, kw_type, dept, bibliometer_path,data
 
     # create and save the cloud image for department 'dept'
     if dept_kw_txt!='':
-        dept_png_file_path = kw_analysis_folder_path / Path(f"{kw_type} {corpus_year}-{dept}.png")
+        png_file_name = f"{kw_type} {corpus_year}-{dept}.png"
+        dept_png_file_path = kw_analysis_folder_path / Path(png_file_name)
         _keywords_cloud(dept_kw_txt,
                        dept_png_file_path,
                        rg.CLOUD_BCKG,
@@ -188,10 +189,15 @@ def create_kw_cloud(institute, corpus_year, kw_type, dept, bibliometer_path,data
                        kw_type,
                        datatype,
                        institute,)
-
-    message = ("\n    Wordcloud images for all keywords types "
-               f"and all departments saved in : \n {kw_analysis_folder_path}")
+                       
+        # Sending message
+        info_txt = (f"Le fichier {png_file_name} a été stoké\n"
+                    f"dans le répertoire:\n {kw_analysis_folder_path}")
+        messagebox.showinfo("Keyword Info", info_txt)
+    
     if verbose:
+        message = ("\n    Wordcloud images for all keywords types "
+                  f"and all departments saved in : \n {kw_analysis_folder_path}")
         print(message, "\n")
         
         
@@ -209,7 +215,7 @@ def _set_wordcloud_title(corpus_year, dept, kw_type, datatype, institute):
     return title
     
 def _keywords_cloud(txt,
-                    out,
+                    img_path,
                     bckg,
                     h,
                     w,
@@ -221,11 +227,11 @@ def _keywords_cloud(txt,
                     institute,
                     verbose = False):
     """
-    Plots the wordcloud of the text `txt`.
+    Plots the text `txt` wordcloud and save its png image.
     
     Args:
         txt (str): Text which words will be plot as cloud.
-        out (path): Full path of the png file that will contain the plot image.
+        img_path (path): Full path of the png file that will contain the plot image.
         bckg (str): Color of the plot background.
         h (int): Height of the plot in pixels.
         w (int): Width of the plot in pixels.
@@ -242,14 +248,14 @@ def _keywords_cloud(txt,
                    max_words        = mxw,
                    collocations     = False)
     cloud = wc.generate(txt)
-    cloud.to_file(out)
+    cloud.to_file(img_path)
     plt.imshow(wc, interpolation='bilinear')
     title = _set_wordcloud_title(corpus_year, dept, kw_type, datatype, institute)
     plt.title(title)
     plt.axis("off")
     plt.show()
 
-    message = f"\n    Wordcloud image saved in file: \n {out}"
+    message = f"\n    Wordcloud image saved in file: \n {img_path}"
     if verbose:
         print(message)
 
@@ -345,6 +351,11 @@ def plot_countries_analysis(corpus_year,bibliometer_path, datatype, institute):
     png_plot = messagebox.askquestion('png plot','Voulez vous tracer le fichier .png')
     if png_plot == "yes":
         _plot_countries_analysis_png(bibliometer_path,corpus_year, datatype)
+    
+    # Sending message
+    info_txt = (f"Les fichiers {geo_file_alias+'.png'} et {geo_file_alias+'.html'} sont sont stokés\n"
+                f"dans le répertoire:\n {path_dic['geo']}")
+    messagebox.showinfo("Geoplot Info", info_txt)
     
  
     
@@ -460,7 +471,7 @@ def _plot_if_png(dept_png_file_path,corpus_year,dept):
     fig, ax = plt.subplots(nrows=1, ncols=1)
     img = mpimg.imread(dept_png_file_path)
     imgplot = ax.imshow(img)
-    ax.set(title=f'Année: {corpus_year}, Départemement: {dept}\n')
+    #ax.set(title=f'Année: {corpus_year}, Départemement: {dept}\n')
     ax.axis('off')
     plt.show()    
     
