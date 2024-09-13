@@ -55,8 +55,8 @@ UNKNOWN = 'unknown'
 COOC_HTML_PARAM = {'algo'      : 'barnes',
                    'height'    : 1000,
                    'width'     : 1000,
-                   'bgcolor'   : '#9E9E9E', #     '#EAEDED',
-                   'font_color': 'black',
+                   'bgcolor'   : "#222222", #'#9E9E9E', #     '#EAEDED',
+                   'font_color': 'white',
                   }
 LABEL_MEANING = {'AU':'Authors',              # ex: Nom1 J, Nom2 E, Nom3 J-P
                  'CU':'Countries',            # ex: France, United States

@@ -179,10 +179,7 @@ def generate_cooc_graph(df_corpus, size_min, item=None):
                 nodes_size[edge[0]] * nodes_size[edge[1]]
             )
         nx.set_edge_attributes(G, kess, "kessler_similarity")
-        del list_edges, weight, nodes_label
-
-    del nodes_size
-
+       
     return G
 
 
@@ -262,6 +259,7 @@ def cooc_graph_html_plot(G,html_file,heading, cooc_html_param=None):
         title += '<br>' + text
         title += '</p>'
         node['title'] = text
+        node["font"]={"size": 100,"color": '##FFFFFF'}
 
     nt.show_buttons(filter_=['physics'])
     nt.write_html(html_file)
