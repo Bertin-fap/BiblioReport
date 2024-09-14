@@ -99,7 +99,7 @@ def generate_cooc_graph(df_corpus, size_min, item=None):
 
     #                           Cleaning of the dataframe
     # -----------------------------------------------------------------------------------------
-    df_corpus.drop_duplicates(inplace=True)  # Keeps unique occurrence of an item
+    df_corpus.drop_duplicates(inplace=True)  # Keeps unique occurrence of an item 
     # per article
     df_corpus.drop(
         index=df_corpus[df_corpus["item"] == rg.UNKNOWN].index, inplace=True
@@ -123,11 +123,13 @@ def generate_cooc_graph(df_corpus, size_min, item=None):
     df_corpus.columns = ["pub_id", "item"]
     nodes_id = list(
         set(df_corpus["item"])
-    )  # Attribution of an integer id to the different items
+    )  
+    # Attribution of an integer id to the different items
     dic_nodes = dict(
         zip(nodes_id, range(len(nodes_id)))
-    )  # Number of an item occurrence keyed by the
-    #   node id
+    )  
+    # Number of an item occurrence keyed by the
+    # node id
     dic_size = dict(zip(dg["item"], dg["count"]))
     nodes_size = {dic_nodes[x]: dic_size[x] for x in nodes_id}
 
@@ -167,8 +169,8 @@ def generate_cooc_graph(df_corpus, size_min, item=None):
             )
             lat_dict = dict(zip(G.nodes, lat))
             lon_dict = dict(zip(G.nodes, lon))
-            nx.set_node_attributes(G, lat_dict, "lat")
-            nx.set_node_attributes(G, lon_dict, "lon")
+            nx.set_node_attributes(G, lat_dict, "latitude")
+            nx.set_node_attributes(G, lon_dict, "longitude")
             del lat_dict, lon_dict
 
         G.add_edges_from(list_edges)
@@ -183,7 +185,12 @@ def generate_cooc_graph(df_corpus, size_min, item=None):
     return G
 
 
-def cooc_graph_html_plot(G,html_file,heading, cooc_html_param=None):
+def cooc_graph_html_plot(G,html_file, html_title, cooc_html_param=None):
+    
+    """
+    Correction of pyviz-network double title by applying :
+    https://stackoverflow.com/questions/74890203/pyvis-network-has-double-heading
+    """
        
     if cooc_html_param==None:
         cooc_html_param=rg.COOC_HTML_PARAM
@@ -205,10 +212,12 @@ def cooc_graph_html_plot(G,html_file,heading, cooc_html_param=None):
             g.hrepulsion()
     
     dic_tot_edges ={node:G.degree(node,'nbr_edges') for node in G.nodes}
-    
-    nt = Network(height=height, width=width, 
+    nt = Network(height=height,
+                 width=width, 
                  bgcolor=bgcolor, 
-                 font_color=font_color,notebook=False,heading = heading)
+                 font_color=font_color,
+                 notebook=False,
+                 heading = html_title)
 
     # populates the nodes and edges data structures
     nt.from_nx(G)
@@ -234,9 +243,7 @@ def cooc_graph_html_plot(G,html_file,heading, cooc_html_param=None):
                 node['nbr_edges_to'][node_from_label]=edge['nbr_edges']
 
     neighbor_map = nt.get_adj_list()
-    
-    
-                      
+                 
     dic_label_neighbors = {}
     for node in nt.nodes:
         node_id = node['id']
@@ -250,18 +257,14 @@ def cooc_graph_html_plot(G,html_file,heading, cooc_html_param=None):
     # add neighbor data to node hover data
     for node in nt.nodes:
         idd = node['id']
-        
-        text = '\n'.join([dic_label_neighbors[idd][i] 
+        text = f'{dic_label_main[idd]}\n\n'
+        text = text + '\n'.join([dic_label_neighbors[idd][i] 
                             for i in range(len(dic_label_neighbors[idd]))])
-        
-        title = '<span style="color: #ff0000;font-size: 8px">'+'<b>' + dic_label_main[idd] +'</b>' + '</span>'
-        title +=  '<p style="font-size: 5px;color:Tomato;">'
-        title += '<br>' + text
-        title += '</p>'
         node['title'] = text
-        node["font"]={"size": 100,"color": '##FFFFFF'}
+        node["font"]={"size": rg.NODE_FONT_SIZE,"color": rg.NODE_FONT_COLOR}
 
     nt.show_buttons(filter_=['physics'])
+    
     nt.write_html(html_file)
     webbrowser.open(html_file)
                      

@@ -19,6 +19,8 @@ __all_ = ['CLOUD_BCKG',
 		  'COUNTRIES_CODES_DICT',
           'COUNTRIES_CONTINENT_DICT',
           'NODE_SIZE_REF',
+          'NODE_FONT_COLOR',
+          'NODE_FONT_SIZE',
           'SIZE_MIN',
           'UNKNOWN'
 		  ]
@@ -54,10 +56,11 @@ UNKNOWN = 'unknown'
 # Parameters of graph construction and  plot
 COOC_HTML_PARAM = {'algo'      : 'barnes',
                    'height'    : 1000,
-                   'width'     : 1000,
+                   'width'     : 1300,
                    'bgcolor'   : "#222222", #'#9E9E9E', #     '#EAEDED',
                    'font_color': 'white',
                   }
+
 LABEL_MEANING = {'AU':'Authors',              # ex: Nom1 J, Nom2 E, Nom3 J-P
                  'CU':'Countries',            # ex: France, United States
                  'I' :'Institutions',         # ex: Acronyme1, Acronyme2
@@ -78,3 +81,5 @@ COOC_AUTHORIZED_ITEMS_DICT = {label:name for name,label in LABEL_MEANING.items()
                               if name in COOC_AUTHORIZED_ITEMS}
 NODE_SIZE_REF = 30
 SIZE_MIN = 1 # Minimum size of co-occurrence nodes
+NODE_FONT_SIZE = 100
+NODE_FONT_COLOR = '##FFFFFF'
