@@ -248,11 +248,19 @@ def cooc_graph_html_plot(G,html_file, html_title, cooc_html_param=None):
     for node in nt.nodes:
         node_id = node['id']
         dic_label_neighbors[node_id] = []
+        country_node = node['label']
+        
         for id_key in sorted(node['nbr_edges_to'].keys(),key=lambda x:int(x.split('-')[0]),reverse=True):
-            dic_label_neighbors[node_id].append(f'{id_key}({str(node["nbr_edges_to"][id_key])})') 
+            country_name = id_key.split('-')[1]
+            country_nbr_pub  = id_key.split('-')[0]
+            dic_label_neighbors[node_id].append((f'{country_name}: {country_nbr_pub} articles, '
+                                                 f'of which {str(node["nbr_edges_to"][id_key])} with {country_node}'))
     
-    dic_label_main = {node['id']: f"{str(node['node_size'])}-{node['label']}({str(node['tot_edges'])},{str(len(dic_label_neighbors[node['id']]))})" 
-                                  for node in nt.nodes}
+    dic_label_main = {node['id']:(f"{node['label']}: "
+                                  f"{str(node['node_size'])} articles " 
+                                  f"published with {str(len(dic_label_neighbors[node['id']]))} counties. "
+                                  f"({str(node['tot_edges'])} collaborations)")
+                      for node in nt.nodes}
     
     # add neighbor data to node hover data
     for node in nt.nodes:
