@@ -111,8 +111,7 @@ def generate_cooc_graph(df_corpus, size_min, item=None):
     dg.columns = ["item", "count"]
     labels_to_drop = dg.query("count<@size_min")[
         "item"
-    ].to_list()  # List of items whith a number
-    # of occurrences less than size_min
+    ].to_list()  # List of items whith a number of occurrences less than size_min
     index_to_drop = [
         x[0] for x in zip(df_corpus.index, df_corpus["item"]) if x[1] in labels_to_drop
     ]
@@ -135,7 +134,6 @@ def generate_cooc_graph(df_corpus, size_min, item=None):
 
     if len(nodes_size) < 2:  # Dont build a graph with one or zero node
         G = None
-        del df_corpus, dic_nodes
 
     else:
         list_edges = []
@@ -152,15 +150,14 @@ def generate_cooc_graph(df_corpus, size_min, item=None):
                         weight[edge] = 1
                     else:
                         weight[edge] += 1
-        del df_corpus
         #                            Building the networx object graph G
         # -------------------------------------------------------------------------------------
         G = nx.Graph()
 
         G.add_nodes_from(dic_nodes.values())
         nx.set_node_attributes(G, nodes_size, "node_size")
+                
         nodes_label = dict(zip(dic_nodes.values(), dic_nodes.keys()))
-        del dic_nodes
 
         nx.set_node_attributes(G, nodes_label, "label")
         if item == "CU":
@@ -171,7 +168,6 @@ def generate_cooc_graph(df_corpus, size_min, item=None):
             lon_dict = dict(zip(G.nodes, lon))
             nx.set_node_attributes(G, lat_dict, "latitude")
             nx.set_node_attributes(G, lon_dict, "longitude")
-            del lat_dict, lon_dict
 
         G.add_edges_from(list_edges)
         nx.set_edge_attributes(G, weight, "nbr_edges")
@@ -181,6 +177,7 @@ def generate_cooc_graph(df_corpus, size_min, item=None):
                 nodes_size[edge[0]] * nodes_size[edge[1]]
             )
         nx.set_edge_attributes(G, kess, "kessler_similarity")
+        nx.set_node_attributes(G, dict(G.degree),"degree")
        
     return G
 
@@ -231,7 +228,8 @@ def cooc_graph_html_plot(G,html_file, html_title, cooc_html_param=None):
     
     for node in nt.nodes:     
         node['title'] = node['label']
-        node['size'] = node['node_size']
+        #node['size'] = node['node_size']
+        node['size'] = node['degree']*10
         node['tot_edges'] = dic_tot_edges[node['id']]
         node['nbr_edges_to'] = {}
         for edge in nt.edges:
@@ -253,21 +251,23 @@ def cooc_graph_html_plot(G,html_file, html_title, cooc_html_param=None):
         for id_key in sorted(node['nbr_edges_to'].keys(),key=lambda x:int(x.split('-')[0]),reverse=True):
             country_name = id_key.split('-')[1]
             country_nbr_pub  = id_key.split('-')[0]
-            dic_label_neighbors[node_id].append((f'{country_name}: {country_nbr_pub} articles, '
-                                                 f'of which {str(node["nbr_edges_to"][id_key])} with {country_node}'))
+            dic_label_neighbors[node_id].append((f'{country_name}: '
+                                             f'{str(node["nbr_edges_to"][id_key])} with {country_node}'))
     
     dic_label_main = {node['id']:(f"{node['label']}: "
                                   f"{str(node['node_size'])} articles " 
                                   f"published with {str(len(dic_label_neighbors[node['id']]))} counties. "
-                                  f"({str(node['tot_edges'])} collaborations)")
+                               )
                       for node in nt.nodes}
     
     # add neighbor data to node hover data
     for node in nt.nodes:
         idd = node['id']
-        text = f'{dic_label_main[idd]}\n\n'
-        text = text + '\n'.join([dic_label_neighbors[idd][i] 
+        text = '<b>' + '<font color="green">'+ dic_label_main[idd] + '</font>'+'</b>'+'<br>' +'<br>'
+        text = text+'<ol>'+'<li>'
+        text = text + '<li>'.join([dic_label_neighbors[idd][i]+'</li>' 
                             for i in range(len(dic_label_neighbors[idd]))])
+        text = text + '</ol>'
         node['title'] = text
         node["font"]={"size": rg.NODE_FONT_SIZE,"color": rg.NODE_FONT_COLOR}
 

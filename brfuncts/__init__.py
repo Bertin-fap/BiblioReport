@@ -8,3 +8,4 @@ __license__ = 'MIT'
 from brfuncts.br_analyze import *
 from brfuncts.functs_globals import *
 from brfuncts.graph_lib import *
+from brfuncts.makeword import *
