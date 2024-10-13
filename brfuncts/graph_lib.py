@@ -1,5 +1,7 @@
-__all__ = ["generate_cooc_graph",
-           "cooc_graph_html_plot"]
+__all__ = ["add_title_to_node",
+          "generate_cooc_graph",
+          "cooc_graph_html_plot",
+          "create_marguerite"]
 
 # Standard library import    
 import math
@@ -158,16 +160,7 @@ def generate_cooc_graph(df_corpus, size_min, item=None):
         nx.set_node_attributes(G, nodes_size, "node_size")
                 
         nodes_label = dict(zip(dic_nodes.values(), dic_nodes.keys()))
-
-        nx.set_node_attributes(G, nodes_label, "label")
-        if item == "CU":
-            lat, lon = map(
-                list, zip(*[rg.COUNTRIES_GPS[nodes_label[node]] for node in G.nodes])
-            )
-            lat_dict = dict(zip(G.nodes, lat))
-            lon_dict = dict(zip(G.nodes, lon))
-            nx.set_node_attributes(G, lat_dict, "latitude")
-            nx.set_node_attributes(G, lon_dict, "longitude")
+        nx.set_node_attributes(G, nodes_label, "label")  
 
         G.add_edges_from(list_edges)
         nx.set_edge_attributes(G, weight, "nbr_edges")
@@ -178,9 +171,63 @@ def generate_cooc_graph(df_corpus, size_min, item=None):
             )
         nx.set_edge_attributes(G, kess, "kessler_similarity")
         nx.set_node_attributes(G, dict(G.degree),"degree")
-       
+        
     return G
 
+def add_long_lat_to_node(G):
+    
+    lat, lon = map(
+                list, zip(*[rg.COUNTRIES_GPS[G.nodes[node]['label']] for node in G.nodes])
+            )
+    lat_dict = dict(zip(G.nodes, lat))
+    lon_dict = dict(zip(G.nodes, lon))
+    nx.set_node_attributes(G, lat_dict, "latitude")
+    nx.set_node_attributes(G, lon_dict, "longitude")
+    
+    return G
+    
+    
+def add_title_to_node(G, txt):
+    
+    from_to_dict = defaultdict(list)
+    to_from_dict = defaultdict(list)
+    
+    labels_node_dict = {G.nodes[node]['label']:node  for node in G.nodes}
+    for u,v in G.edges:
+        from_to_dict[G.nodes[u]['label']].append((G.nodes[v]['label'],G[u][v]['nbr_edges']))
+        to_from_dict[G.nodes[v]['label']].append((G.nodes[u]['label'],G[u][v]['nbr_edges']))
+    
+    tot_edges_dict = {key: from_to_dict.get(key, []) + to_from_dict.get(key, []) 
+              for key in (from_to_dict.keys() | to_from_dict.keys())}
+    
+    tot_edges_dict = {k: sorted(v,key=lambda x: x[1],reverse=True) for k,v in tot_edges_dict.items()}
+    tot_edges_dict = {k:[f'{x[0]} : {str(x[1])}' for x in v] for k,v in tot_edges_dict.items()}
+    
+    text_dict = {}
+    
+    for k,v in tot_edges_dict.items():
+        idx_node = labels_node_dict[k]
+        titre = f"{k} : {G.nodes[idx_node]['node_size']} publiched with {G.nodes[idx_node]['degree']} {txt}"
+        text = '<b>' + '<font color="green">'+ titre + '</font>'+'</b>'+'<br>' +'<br>'
+        text = text+'<ol>'+'<li>'
+        text = text + '<li>'.join(v)+'</li>' 
+        text = text + '</ol>'
+        text_dict[idx_node] = text
+    
+    nx.set_node_attributes(G, text_dict,"title")
+
+    return G
+
+def create_marguerite(G,item):
+    
+    country = 'Germany'
+    for idx,x in enumerate(G.nodes):
+        if G.nodes[x]['label']==item:
+            break
+    edge_to_remove_list = [x for x in G.edges if idx not in x]
+    G.remove_edges_from(edge_to_remove_list)
+
+    return G
 
 def cooc_graph_html_plot(G,html_file, html_title, cooc_html_param=None):
     
@@ -208,7 +255,7 @@ def cooc_graph_html_plot(G,html_file, html_title, cooc_html_param=None):
         if alg == 'hr':
             g.hrepulsion()
     
-    dic_tot_edges ={node:G.degree(node,'nbr_edges') for node in G.nodes}
+    #dic_tot_edges ={node:G.degree(node,'nbr_edges') for node in G.nodes} # not used
     nt = Network(height=height,
                  width=width, 
                  bgcolor=bgcolor, 
@@ -227,20 +274,20 @@ def cooc_graph_html_plot(G,html_file, html_title, cooc_html_param=None):
         edge['value'] = edge['nbr_edges']
     
     for node in nt.nodes:     
-        node['title'] = node['label']
+        #node['title'] = node['label']
         #node['size'] = node['node_size']
         node['size'] = node['degree']*10
-        node['tot_edges'] = dic_tot_edges[node['id']]
+        #node['tot_edges'] = dic_tot_edges[node['id']]  # not used
         node['nbr_edges_to'] = {}
         for edge in nt.edges:
             if edge['from'] == node['id']:
                 node_to_label = dic_node_label[str(edge['to'])]
-                node['nbr_edges_to'][node_to_label] = edge['nbr_edges']
+                #node['nbr_edges_to'][node_to_label] = edge['nbr_edges']
             if edge['to'] == node['id']:
                 node_from_label = dic_node_label[str(edge['from'])]
-                node['nbr_edges_to'][node_from_label]=edge['nbr_edges']
+                #node['nbr_edges_to'][node_from_label]=edge['nbr_edges']
 
-    neighbor_map = nt.get_adj_list()
+    #neighbor_map = nt.get_adj_list()
                  
     dic_label_neighbors = {}
     for node in nt.nodes:
@@ -253,10 +300,11 @@ def cooc_graph_html_plot(G,html_file, html_title, cooc_html_param=None):
             country_nbr_pub  = id_key.split('-')[0]
             dic_label_neighbors[node_id].append((f'{country_name}: '
                                              f'{str(node["nbr_edges_to"][id_key])} with {country_node}'))
-    
+    item = "countries"
+    item = "d&eacute;partements"
     dic_label_main = {node['id']:(f"{node['label']}: "
                                   f"{str(node['node_size'])} articles " 
-                                  f"published with {str(len(dic_label_neighbors[node['id']]))} counties. "
+                                  f"published with {str(len(dic_label_neighbors[node['id']]))} {item}. "
                                )
                       for node in nt.nodes}
     
@@ -268,13 +316,15 @@ def cooc_graph_html_plot(G,html_file, html_title, cooc_html_param=None):
         text = text + '<li>'.join([dic_label_neighbors[idd][i]+'</li>' 
                             for i in range(len(dic_label_neighbors[idd]))])
         text = text + '</ol>'
-        node['title'] = text
+        #node['title'] = text
         node["font"]={"size": rg.NODE_FONT_SIZE,"color": rg.NODE_FONT_COLOR}
 
     nt.show_buttons(filter_=['physics'])
     
     nt.write_html(html_file)
     webbrowser.open(html_file)
+    
+    return nt
                      
 def plot_cooc_graph(G, item, size_min=None, node_size_ref=None):
 
