@@ -1,7 +1,7 @@
 __all__ = ["add_title_to_node",
           "generate_cooc_graph",
           "cooc_graph_html_plot",
-          "create_marguerite",
+          "create_star_graph",
           "plot_graph_countries",
           "plot_graph_departement",]
 
@@ -179,6 +179,11 @@ def generate_cooc_graph(df_corpus, size_min, item=None):
 
 def add_long_lat_to_node(G):
     
+    """
+    The function add_long_lat_to_node adds two attributes to the nodes : the latitude of the country capital and the
+    longitude of the country capital.
+    """
+    
     lat, lon = map(
                 list, zip(*[rg.COUNTRIES_GPS[G.nodes[node]['label']] for node in G.nodes])
             )
@@ -189,7 +194,12 @@ def add_long_lat_to_node(G):
     
     return G
 
-def add_(G):
+def add_total_edges_to_node(G):
+    
+    """
+    The function `add_total_edges_to_node`adds the node attribute "tot_edges" to total number
+    of edges connected to the node (not to be cofused with the node degree).
+    """
     
     dic_tot_edges = {node:G.degree(node,'nbr_edges') for node in G.nodes}
     nx.set_node_attributes(G, dic_tot_edges, 'tot_edges')
@@ -198,28 +208,35 @@ def add_(G):
     
 def add_title_to_node(G, txt):
     
-    """add neighbor data to node hover data"""
+    """add hover data attribute to node. These hover data are formatted as html text.
+    There consist in : (i) a heading <h4> containing the attribute of the node and a ordered list
+    containing the number of articles co-authored with other countries.
+    
+    """
     
     from_to_dict = defaultdict(list)
     to_from_dict = defaultdict(list)
     
     labels_node_dict = {G.nodes[node]['label']:node  for node in G.nodes}
+    
+    # Builds dicts {node_label: list of tuple (u,v)} where u or v is the node_label
     for u,v in G.edges:
         from_to_dict[G.nodes[u]['label']].append((G.nodes[v]['label'],G[u][v]['nbr_edges']))
         to_from_dict[G.nodes[v]['label']].append((G.nodes[u]['label'],G[u][v]['nbr_edges']))
     
+    # dict concatenation of from_to_dict and to_from_dict
     tot_edges_dict = {key: from_to_dict.get(key, []) + to_from_dict.get(key, []) 
               for key in (from_to_dict.keys() | to_from_dict.keys())}
     
     tot_edges_dict = {k: sorted(v,key=lambda x: x[1],reverse=True) for k,v in tot_edges_dict.items()}
-    tot_edges_dict = {k:[f'{x[0]} : {str(x[1])}' for x in v] for k,v in tot_edges_dict.items()}
+    tot_edges_dict = {k:[f'{x[0]} : {str(x[1])} articles' for x in v] for k,v in tot_edges_dict.items()}
     
     text_dict = {}
     
     for k,v in tot_edges_dict.items():
         idx_node = labels_node_dict[k]
-        titre = f"{k} : {G.nodes[idx_node]['node_size']} publiched with {G.nodes[idx_node]['degree']} {txt}"
-        text = '<b>' + '<font color="green">'+ titre + '</font>'+'</b>'+'<br>' +'<br>'
+        titre = f"{k} : {G.nodes[idx_node]['node_size']} articles. Number of collaboratve {txt} : {G.nodes[idx_node]['degree']}"
+        text = '<h5>'+'<font color="green">'+ titre + '</font>' + '</h5>'
         text = text+'<ol>'+'<li>'
         text = text + '<li>'.join(v)+'</li>' 
         text = text + '</ol>'
@@ -229,14 +246,21 @@ def add_title_to_node(G, txt):
 
     return G
 
-def create_marguerite(G,item):
+def create_star_graph(G,central_node_label):
     
-    country = 'Germany'
-    for idx,x in enumerate(G.nodes):
-        if G.nodes[x]['label']==item:
-            break
+    '''
+    create_star_graph create a subgraph of G by retaining only the central node which label is `central_node_label` 
+    and all its edges
+    '''
+    # removing of edges not connected to the central node 
+    nodes_labels_dict = {G.nodes[node]['label']:node  for node in G.nodes}
+    idx = nodes_labels_dict[central_node_label]
     edge_to_remove_list = [x for x in G.edges if idx not in x]
     G.remove_edges_from(edge_to_remove_list)
+    
+    # removing of isolated nodes by retaining the higher connected graph which is unique
+    nodes = max(nx.connected_components(G), key=len)
+    G = nx.subgraph(G, nodes)
 
     return G
 
@@ -296,7 +320,12 @@ def cooc_graph_html_plot(G,html_file, html_title, cooc_html_param=None, size="si
     
     return nt
     
-def plot_graph_countries(bm_path,institute,year,datatype):
+def plot_graph_countries(bm_path,institute,year,datatype,central_node_label):
+    
+    """
+    Buids a star graph with central node of label `central_node_label` of the articles co-authored 
+    by the `central_node_label` country and other countries.
+    """
    
     path_base = bm_path / Path(str(year)) / Path(r'Corpus\deduplication\parsing')
     
@@ -320,7 +349,7 @@ def plot_graph_countries(bm_path,institute,year,datatype):
     G = add_long_lat_to_node(G)
     G = add_title_to_node(G,'countries')
 
-    G = create_marguerite(G,'France')
+    G = create_star_graph(G,central_node_label)
 
     header = ('<h1><img ="C:/Users/franc/PyVenv/BiblioReport/brfuncts/ConfigFiles/BM-logo.ico"/><font color=#33afff>'
               f'<b>{institute} - {year}</b> '
@@ -355,7 +384,7 @@ def plot_graph_departement(file,institute,year,datatype):
                    columns =['Pub_id', 'item'])
     
     G = generate_cooc_graph(dg, 1, item='item')
-    G = add_title_to_node(G,'d&eacute;partements')
+    G = add_title_to_node(G,'departments')
     header = ('<h1><font color=#33afff>'
               f'<b>{institute} - {year}</b> '
               '</font color>''</h1>'
