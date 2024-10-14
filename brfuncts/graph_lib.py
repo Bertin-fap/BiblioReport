@@ -1,11 +1,14 @@
 __all__ = ["add_title_to_node",
           "generate_cooc_graph",
           "cooc_graph_html_plot",
-          "create_marguerite"]
+          "create_marguerite",
+          "plot_graph_countries",
+          "plot_graph_departement",]
 
 # Standard library import    
 import math
 from collections import defaultdict
+from pathlib import Path
 import webbrowser
 
 # 3rd party import
@@ -185,9 +188,17 @@ def add_long_lat_to_node(G):
     nx.set_node_attributes(G, lon_dict, "longitude")
     
     return G
+
+def add_(G):
     
+    dic_tot_edges = {node:G.degree(node,'nbr_edges') for node in G.nodes}
+    nx.set_node_attributes(G, dic_tot_edges, 'tot_edges')
+    
+    return G    
     
 def add_title_to_node(G, txt):
+    
+    """add neighbor data to node hover data"""
     
     from_to_dict = defaultdict(list)
     to_from_dict = defaultdict(list)
@@ -229,7 +240,7 @@ def create_marguerite(G,item):
 
     return G
 
-def cooc_graph_html_plot(G,html_file, html_title, cooc_html_param=None):
+def cooc_graph_html_plot(G,html_file, html_title, cooc_html_param=None, size="size"):
     
     """
     Correction of pyviz-network double title by applying :
@@ -255,7 +266,6 @@ def cooc_graph_html_plot(G,html_file, html_title, cooc_html_param=None):
         if alg == 'hr':
             g.hrepulsion()
     
-    #dic_tot_edges ={node:G.degree(node,'nbr_edges') for node in G.nodes} # not used
     nt = Network(height=height,
                  width=width, 
                  bgcolor=bgcolor, 
@@ -265,67 +275,96 @@ def cooc_graph_html_plot(G,html_file, html_title, cooc_html_param=None):
 
     # populates the nodes and edges data structures
     nt.from_nx(G)
-    dic_node_label = {str(node['id']):f'{str(node["node_size"])}-{node["label"]}'
-                       for node in nt.nodes}
+    
     map_algs(nt,alg='barnes')
     
     for edge in nt.edges:
         edge['title'] = edge['nbr_edges']
         edge['value'] = edge['nbr_edges']
     
-    for node in nt.nodes:     
-        #node['title'] = node['label']
-        #node['size'] = node['node_size']
-        node['size'] = node['degree']*10
-        #node['tot_edges'] = dic_tot_edges[node['id']]  # not used
-        node['nbr_edges_to'] = {}
-        for edge in nt.edges:
-            if edge['from'] == node['id']:
-                node_to_label = dic_node_label[str(edge['to'])]
-                #node['nbr_edges_to'][node_to_label] = edge['nbr_edges']
-            if edge['to'] == node['id']:
-                node_from_label = dic_node_label[str(edge['from'])]
-                #node['nbr_edges_to'][node_from_label]=edge['nbr_edges']
-
-    #neighbor_map = nt.get_adj_list()
-                 
-    dic_label_neighbors = {}
     for node in nt.nodes:
-        node_id = node['id']
-        dic_label_neighbors[node_id] = []
-        country_node = node['label']
-        
-        for id_key in sorted(node['nbr_edges_to'].keys(),key=lambda x:int(x.split('-')[0]),reverse=True):
-            country_name = id_key.split('-')[1]
-            country_nbr_pub  = id_key.split('-')[0]
-            dic_label_neighbors[node_id].append((f'{country_name}: '
-                                             f'{str(node["nbr_edges_to"][id_key])} with {country_node}'))
-    item = "countries"
-    item = "d&eacute;partements"
-    dic_label_main = {node['id']:(f"{node['label']}: "
-                                  f"{str(node['node_size'])} articles " 
-                                  f"published with {str(len(dic_label_neighbors[node['id']]))} {item}. "
-                               )
-                      for node in nt.nodes}
-    
-    # add neighbor data to node hover data
-    for node in nt.nodes:
-        idd = node['id']
-        text = '<b>' + '<font color="green">'+ dic_label_main[idd] + '</font>'+'</b>'+'<br>' +'<br>'
-        text = text+'<ol>'+'<li>'
-        text = text + '<li>'.join([dic_label_neighbors[idd][i]+'</li>' 
-                            for i in range(len(dic_label_neighbors[idd]))])
-        text = text + '</ol>'
-        #node['title'] = text
+        if size == "size":        
+            node['size'] = node['node_size']
+        elif size == "degree":
+            node['size'] = node['degree']*10           
         node["font"]={"size": rg.NODE_FONT_SIZE,"color": rg.NODE_FONT_COLOR}
 
-    nt.show_buttons(filter_=['physics'])
+    #nt.show_buttons(filter_=['physics'])
     
     nt.write_html(html_file)
     webbrowser.open(html_file)
     
     return nt
-                     
+    
+def plot_graph_countries(bm_path,institute,year,datatype):
+   
+    path_base = bm_path / Path(str(year)) / Path(r'Corpus\deduplication\parsing')
+    
+    filename_dat = 'countries.dat'
+    countries_file_dat = path_base / Path(filename_dat)
+    
+    
+    filename_html = 'countries_graph.html'
+    countries_file_html = path_base / Path(filename_html)    
+    
+    filename_gefx = 'countries.gexf'
+    countries_file_gefx = path_base / Path(filename_gefx)
+    
+    #countries_file = r'C:\Users\franc\BiblioMeter_App\LITEN\BiblioMeter_Files\2023\Corpus\deduplication\parsing\countries.dat'
+    counties_df = pd.read_csv(countries_file_dat,
+                              sep='\t',
+                              usecols = ['Pub_id','Country'])
+    counties_df.columns = ['pub_id', 'item' ]
+    
+    G = generate_cooc_graph(counties_df, 2, item="CU")
+    G = add_long_lat_to_node(G)
+    G = add_title_to_node(G,'countries')
+
+    G = create_marguerite(G,'France')
+
+    header = ('<h1><img ="C:/Users/franc/PyVenv/BiblioReport/brfuncts/ConfigFiles/BM-logo.ico"/><font color=#33afff>'
+              f'<b>{institute} - {year}</b> '
+              '</font color>''</h1>'
+              f'<p>Base de donn&eacute;es: {datatype}, taille de noeuds : nombre de pays co-auteurs</p>'
+              )
+
+    nt = cooc_graph_html_plot(G,str(countries_file_html),
+                         header,size="degree")
+    
+    #plot_cooc_graph(G,"CU")
+    _write_cooc_gexf(G, countries_file_gefx)
+
+    return G
+
+def plot_graph_departement(file,institute,year,datatype):
+
+    dep_list = ['DEHT', 'DTCH', 'DTNM', 'DTS', 'DIR',]
+    print(file)
+    df = pd.read_excel(file,usecols=['Pub_id'] + dep_list)
+    
+    list_pub_id = []
+    list_dep_publi = []
+    for row in df.iterrows():
+        row = row[1]
+        for dep in dep_list:
+            if row[dep]:
+                list_pub_id.append(row['Pub_id'])
+                list_dep_publi.append(dep)
+    
+    dg = pd.DataFrame(list(zip(list_pub_id, list_dep_publi)),
+                   columns =['Pub_id', 'item'])
+    
+    G = generate_cooc_graph(dg, 1, item='item')
+    G = add_title_to_node(G,'d&eacute;partements')
+    header = ('<h1><font color=#33afff>'
+              f'<b>{institute} - {year}</b> '
+              '</font color>''</h1>'
+              f'<p>Base de donn&eacute;es: {datatype}, taille de noeuds : nombre de publications du d&eacute;partement</p>'
+              )
+    cooc_graph_html_plot(G,
+                         r"c:\users\franc\Temp\dep.html",
+                         header,
+                         size="size")                     
 def plot_cooc_graph(G, item, size_min=None, node_size_ref=None):
 
     """The `plot_cooc_graph` function plots the co-occurrence graph G.
