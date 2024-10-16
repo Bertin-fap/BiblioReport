@@ -3,7 +3,10 @@ __all__ = ["add_title_to_node",
           "cooc_graph_html_plot",
           "create_star_graph",
           "plot_graph_countries",
-          "plot_graph_departement",]
+          "plot_graph_departement",
+          "get_filename_listeconsolideepubli",
+          "get_filename_listeconsolideebook",
+          "get_departements_list",]
 
 # Standard library import    
 import math
@@ -12,6 +15,8 @@ from pathlib import Path
 import webbrowser
 
 # 3rd party import
+import jinja2
+import json
 import networkx as nx
 import numpy as np
 import matplotlib.pyplot as plt
@@ -101,11 +106,8 @@ def generate_cooc_graph(df_corpus, size_min, item=None):
         
     """
 
-
-    #                           Cleaning of the dataframe
-    # -----------------------------------------------------------------------------------------
-    df_corpus.drop_duplicates(inplace=True)  # Keeps unique occurrence of an item 
-    # per article
+    # Dataframe cleaning
+    df_corpus.drop_duplicates(inplace=True)  # Keeps unique occurrence of an item per article
     df_corpus.drop(
         index=df_corpus[df_corpus["item"] == rg.UNKNOWN].index, inplace=True
     )  # Drops rows with UNKNOWN items
@@ -122,18 +124,14 @@ def generate_cooc_graph(df_corpus, size_min, item=None):
     ]
     df_corpus.drop(index_to_drop, inplace=True)  # Cleaning of the dataframe
 
-    #                 Building the set of nodes and the set of edges
-    # -----------------------------------------------------------------------------------------
+    # Building the set of nodes and the set of edges
     df_corpus.columns = ["pub_id", "item"]
-    nodes_id = list(
-        set(df_corpus["item"])
-    )  
+    nodes_id = list(set(df_corpus["item"]))
+    
     # Attribution of an integer id to the different items
-    dic_nodes = dict(
-        zip(nodes_id, range(len(nodes_id)))
-    )  
-    # Number of an item occurrence keyed by the
-    # node id
+    dic_nodes = dict(zip(nodes_id, range(len(nodes_id)))) 
+    
+    # Number of an item occurrence keyed by the node id
     dic_size = dict(zip(dg["item"], dg["count"]))
     nodes_size = {dic_nodes[x]: dic_size[x] for x in nodes_id}
 
@@ -155,8 +153,8 @@ def generate_cooc_graph(df_corpus, size_min, item=None):
                         weight[edge] = 1
                     else:
                         weight[edge] += 1
-        #                            Building the networx object graph G
-        # -------------------------------------------------------------------------------------
+                        
+        # Building the networx object graph G
         G = nx.Graph()
 
         G.add_nodes_from(dic_nodes.values())
@@ -208,7 +206,8 @@ def add_total_edges_to_node(G):
     
 def add_title_to_node(G, txt):
     
-    """add hover data attribute to node. These hover data are formatted as html text.
+    """
+    add hover data attribute to node. These hover data are formatted as html text.
     There consist in : (i) a heading <h4> containing the attribute of the node and a ordered list
     containing the number of articles co-authored with other countries.
     
@@ -217,7 +216,7 @@ def add_title_to_node(G, txt):
     from_to_dict = defaultdict(list)
     to_from_dict = defaultdict(list)
     
-    labels_node_dict = {G.nodes[node]['label']:node  for node in G.nodes}
+    labels_idx_dict = {G.nodes[node]['label']:node  for node in G.nodes}
     
     # Builds dicts {node_label: list of tuple (u,v)} where u or v is the node_label
     for u,v in G.edges:
@@ -232,15 +231,24 @@ def add_title_to_node(G, txt):
     tot_edges_dict = {k:[f'{x[0]} : {str(x[1])} articles' for x in v] for k,v in tot_edges_dict.items()}
     
     text_dict = {}
-    
-    for k,v in tot_edges_dict.items():
-        idx_node = labels_node_dict[k]
-        titre = f"{k} : {G.nodes[idx_node]['node_size']} articles. Number of collaboratve {txt} : {G.nodes[idx_node]['degree']}"
-        text = '<h5>'+'<font color="green">'+ titre + '</font>' + '</h5>'
-        text = text+'<ol>'+'<li>'
-        text = text + '<li>'.join(v)+'</li>' 
-        text = text + '</ol>'
-        text_dict[idx_node] = text
+    env = jinja2.Environment()
+    for node_label,label_list in tot_edges_dict.items():
+        idx_node = labels_idx_dict[node_label]
+        context = dict(node_label=node_label,
+                      node_size=G.nodes[idx_node]['node_size'],
+                      node_degree=G.nodes[idx_node]['degree'],
+                      label_list=label_list)     
+        
+        template = env.from_string(("<h5><font color=green>"
+                                       "{{node_label}} : {{node_size}} articles. "
+                                       "Number of collaborative {{txt}} : {{node_degree}}"
+                                  "</font color></h5>"
+                                  "<ol>"
+                                        "{% for item in label_list %}"
+                                            "<li> {{item}} </li>"
+                                        "{% endfor %}"
+                                  "</ol>"))
+        text_dict[idx_node] = template.render(context)
     
     nx.set_node_attributes(G, text_dict,"title")
 
@@ -323,8 +331,8 @@ def cooc_graph_html_plot(G,html_file, html_title, cooc_html_param=None, size="si
 def plot_graph_countries(bm_path,institute,year,datatype,central_node_label):
     
     """
-    Buids a star graph with central node of label `central_node_label` of the articles co-authored 
-    by the `central_node_label` country and other countries.
+    Function `plot_graph_countries` builds and plots a star graph with central node of label `central_node_label` 
+    of the articles co-authored by the `central_node_label` country and other countries.
     """
    
     path_base = bm_path / Path(str(year)) / Path(r'Corpus\deduplication\parsing')
@@ -339,7 +347,6 @@ def plot_graph_countries(bm_path,institute,year,datatype,central_node_label):
     filename_gefx = 'countries.gexf'
     countries_file_gefx = path_base / Path(filename_gefx)
     
-    #countries_file = r'C:\Users\franc\BiblioMeter_App\LITEN\BiblioMeter_Files\2023\Corpus\deduplication\parsing\countries.dat'
     counties_df = pd.read_csv(countries_file_dat,
                               sep='\t',
                               usecols = ['Pub_id','Country'])
@@ -350,12 +357,8 @@ def plot_graph_countries(bm_path,institute,year,datatype,central_node_label):
     G = add_title_to_node(G,'countries')
 
     G = create_star_graph(G,central_node_label)
-
-    header = ('<h1><img ="C:/Users/franc/PyVenv/BiblioReport/brfuncts/ConfigFiles/BM-logo.ico"/><font color=#33afff>'
-              f'<b>{institute} - {year}</b> '
-              '</font color>''</h1>'
-              f'<p>Base de donn&eacute;es: {datatype}, taille de noeuds : nombre de pays co-auteurs</p>'
-              )
+    node_size_comment = "Taille des noeuds : nombre de pays collaboratifs"
+    header = build_header(institute,year,datatype,node_size_comment)
 
     nt = cooc_graph_html_plot(G,str(countries_file_html),
                          header,size="degree")
@@ -365,12 +368,71 @@ def plot_graph_countries(bm_path,institute,year,datatype,central_node_label):
 
     return G
 
-def plot_graph_departement(file,institute,year,datatype):
+def get_filename_listeconsolideepubli(bm_path,year,datatype):
 
-    dep_list = ['DEHT', 'DTCH', 'DTNM', 'DTS', 'DIR',]
-    print(file)
+    file_name = 'Liste consolidée '+ str(year) + '_Articles & Proceedings.xlsx'
+    bm_path = bm_path / 'Sauvegarde des résultats' / datatype / str(year)
+    file = bm_path / 'Listes consolidées des publications' / file_name
+    
+    return file
+
+def get_filename_listeconsolideebook(bm_path,year,datatype):
+
+    file_name = 'Liste consolidée '+ str(year) + '_Books & Editorials.xlsx'
+    bm_path = bm_path / 'Sauvegarde des résultats' / datatype / str(year)
+    file = bm_path / 'Listes consolidées des publications' / file_name
+    
+    return file  
+    
+def get_departements_list(bm_path, institute):
+    
+    """
+    Function `get_departements_list` gets the institute departements list from the json file
+    <Institute>Org_config.json located in the "Pamametres Institut" directory
+    """
+    
+    if institute.capitalize() == 'Liten':
+        file = Path(bm_path) / 'Parametres Institut' / 'LitenOrg_config.json'
+    elif institute.capitalize() == 'Leti':
+        file = Path(bm_path) / 'Parametres Institut' / 'LetiOrg_config.json'
+    else:
+        pass # raises error
+        
+    with open(file) as f:
+        d = json.load(f)
+        
+    dep_list = list(d["COL_NAMES_DPT"].values())
+    
+    return dep_list
+
+def build_header(institute,year,datatype,node_size_comment):
+    
+    header = ( '<h1>'
+                  f'<font color=#33afff><b>{institute} - {year}</b></font color>'
+              '</h1>'
+              '<p>'
+                  f'Base de donn&eacute;es: {datatype}, {node_size_comment}'
+              '</p>'
+              '<p>'
+                  '<a href="https://github.com/Bertin-fap/BiblioReport">Cr&eacute;&eacute par BiblioReport</a>'
+              '</p>')
+    return header
+    
+def plot_graph_departement(bm_path,institute,year,datatype):
+    
+    """
+    Function `plot_graph_departement` builds and plots a graph G(nodes,h). The nodes are the institute departements
+    and the edges connect two departements which have co-authaured at least one article during the year `year`. 
+    The article corpus has been built using the database`.
+    """
+  
+    # Get the departements liste from the json file 
+    # the Excel file "Liste consolidée <year>_Articles & Proceedings.xlsx"
+    dep_list = get_departements_list(bm_path, institute)
+    file = get_filename_listeconsolideepubli(bm_path,year,datatype)
     df = pd.read_excel(file,usecols=['Pub_id'] + dep_list)
     
+    # Build the graph G out of the Excel file 
     list_pub_id = []
     list_dep_publi = []
     for row in df.iterrows():
@@ -385,19 +447,20 @@ def plot_graph_departement(file,institute,year,datatype):
     
     G = generate_cooc_graph(dg, 1, item='item')
     G = add_title_to_node(G,'departments')
-    header = ('<h1><font color=#33afff>'
-              f'<b>{institute} - {year}</b> '
-              '</font color>''</h1>'
-              f'<p>Base de donn&eacute;es: {datatype}, taille de noeuds : nombre de publications du d&eacute;partement</p>'
-              )
+    
+    node_size_comment = "Taille des noeuds : nombre de publications du d&eacute;partement"
+    header = build_header(institute,year,datatype,node_size_comment)
+    
     cooc_graph_html_plot(G,
                          r"c:\users\franc\Temp\dep.html",
                          header,
-                         size="size")                     
+                         size="size")   
+                         
 def plot_cooc_graph(G, item, size_min=None, node_size_ref=None):
 
-    """The `plot_cooc_graph` function plots the co-occurrence graph G.
-       The layout is fixed as "spring_layout".
+    """
+    The `plot_cooc_graph` function plots the co-occurrence graph G.
+    The layout is fixed as "spring_layout".
     
     Args:
         G (networkx ogject): a co-occurrence graph built using 
@@ -448,8 +511,9 @@ def plot_cooc_graph(G, item, size_min=None, node_size_ref=None):
 
 def _write_cooc_gexf(G, filename):
 
-    """The `_write_cooc_gexf` function saves the graph `G"`
-       in Gephy (`.gexf`) format using full path filename.
+    """
+    The `_write_cooc_gexf` function saves the graph `G"`
+    in Gephy (`.gexf`) format using full path filename.
        
     Args:
         G (networkx ogject): a co-occurrence graph built using 
@@ -465,10 +529,11 @@ def _write_cooc_gexf(G, filename):
 
 def _write_cooc_gdf(G, item, color, filename):
 
-    """The `_write_cooc_gdf` function saves the graph `G` 
-       in Gephy (`.gdf`) format using full path filename.
-       If `item = "CU"`, the longitude and latitude (in degree) of the country capital 
-       are added as attributes of the node to be compatible with the Geo Layout of Gephy.
+    """
+    The `_write_cooc_gdf` function saves the graph `G` 
+    in Gephy (`.gdf`) format using full path filename.
+    If `item = "CU"`, the longitude and latitude (in degree) of the country capital 
+    are added as attributes of the node to be compatible with the Geo Layout of Gephy.
        
     Args:
         G (networkx ogject): a co-occurrence graph built using 
