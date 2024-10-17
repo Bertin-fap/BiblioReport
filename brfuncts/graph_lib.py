@@ -6,7 +6,7 @@ __all__ = ["add_title_to_node",
           "plot_graph_departement",
           "get_filename_listeconsolideepubli",
           "get_filename_listeconsolideebook",
-          "get_departements_list",]
+          ]
 
 # Standard library import    
 import math
@@ -26,6 +26,9 @@ from pyvis.network import Network
 
 # Local imports
 import brfuncts.functs_globals as rg 
+from brfuncts.toolbox import  get_filename_listeconsolideepubli 
+from brfuncts.toolbox import  get_filename_listeconsolideebook
+from brfuncts.toolbox import  get_departements_list
 
 
 def generate_cooc_graph(df_corpus, size_min, item=None):
@@ -366,45 +369,8 @@ def plot_graph_countries(bm_path,institute,year,datatype,central_node_label):
     #plot_cooc_graph(G,"CU")
     _write_cooc_gexf(G, countries_file_gefx)
 
-    return G
-
-def get_filename_listeconsolideepubli(bm_path,year,datatype):
-
-    file_name = 'Liste consolidée '+ str(year) + '_Articles & Proceedings.xlsx'
-    bm_path = bm_path / 'Sauvegarde des résultats' / datatype / str(year)
-    file = bm_path / 'Listes consolidées des publications' / file_name
+    return G 
     
-    return file
-
-def get_filename_listeconsolideebook(bm_path,year,datatype):
-
-    file_name = 'Liste consolidée '+ str(year) + '_Books & Editorials.xlsx'
-    bm_path = bm_path / 'Sauvegarde des résultats' / datatype / str(year)
-    file = bm_path / 'Listes consolidées des publications' / file_name
-    
-    return file  
-    
-def get_departements_list(bm_path, institute):
-    
-    """
-    Function `get_departements_list` gets the institute departements list from the json file
-    <Institute>Org_config.json located in the "Pamametres Institut" directory
-    """
-    
-    if institute.capitalize() == 'Liten':
-        file = Path(bm_path) / 'Parametres Institut' / 'LitenOrg_config.json'
-    elif institute.capitalize() == 'Leti':
-        file = Path(bm_path) / 'Parametres Institut' / 'LetiOrg_config.json'
-    else:
-        pass # raises error
-        
-    with open(file) as f:
-        d = json.load(f)
-        
-    dep_list = list(d["COL_NAMES_DPT"].values())
-    
-    return dep_list
-
 def build_header(institute,year,datatype,node_size_comment):
     
     header = ( '<h1>'

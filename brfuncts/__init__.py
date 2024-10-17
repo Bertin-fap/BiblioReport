@@ -9,3 +9,4 @@ from brfuncts.br_analyze import *
 from brfuncts.functs_globals import *
 from brfuncts.graph_lib import *
 from brfuncts.makeword import *
+from brfuncts.toolbox import *

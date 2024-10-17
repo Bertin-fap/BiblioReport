@@ -7,9 +7,9 @@ from difflib import SequenceMatcher
 from docxtpl import DocxTemplate
 
 # Local imports
-from brfuncts.graph_lib import  get_filename_listeconsolideepubli 
-from brfuncts.graph_lib import  get_filename_listeconsolideebook
-from brfuncts.graph_lib import  get_departements_list
+from brfuncts.toolbox import  get_filename_listeconsolideepubli 
+from brfuncts.toolbox import  get_filename_listeconsolideebook
+from brfuncts.toolbox import  get_departements_list
 
 join_prenom = lambda x:''.join([y[0].upper() for y in x.split()])
 
