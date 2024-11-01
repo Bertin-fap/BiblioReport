@@ -1,6 +1,8 @@
 __all__ = ["get_departements_list",
          "get_filename_listeconsolideepubli",
-         "get_filename_listeconsolideebook",]
+         "get_filename_listeconsolideebook",
+         "get_filename_analyseparauteurs",
+         "get_filename_listeconsolidee"]
          
 from pathlib import Path
 import json
@@ -41,4 +43,19 @@ def get_filename_listeconsolideebook(bm_path,year,datatype):
     file = bm_path / 'Listes consolidées des publications' / file_name
     
     return file 
- 
+
+def get_filename_analyseparauteurs(bm_path,year,datatype):
+
+    file_name = f'Informations auteur par publication {str(year)}.xlsx'
+    bm_path = bm_path / 'Sauvegarde des résultats' / datatype / str(year)
+    file = bm_path / 'Analyse par auteurs' / file_name
+    
+    return file 
+    
+def get_filename_listeconsolidee(bm_path,year,datatype):
+
+    file_name = 'Liste consolidée '+ str(year) + '.xlsx'
+    bm_path = bm_path / 'Sauvegarde des résultats' / datatype / str(year)
+    file = bm_path / 'Listes consolidées des publications' / file_name
+    
+    return file

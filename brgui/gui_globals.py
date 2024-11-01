@@ -44,7 +44,8 @@ __all__ = ['ADD_SPACE_MM',
            'TEXT_YEAR_KPI',
            'TEXT_IFPLOT',
            'TEXT_IF_ANALYSIS',
-           'TEXT_TITLE',]
+           'TEXT_TITLE',
+           'BUTT_GRAPH_COUNTRIES',]
            
 import bmgui.gui_globals as bmgg
 
@@ -93,7 +94,8 @@ TEXT_KW_ANALYSIS = "Lancer le tracé"
 TEXT_DEPT = "Département ?"
 TEXT_KW = "Mot clé ?"
 TEXT_GEOPLOT = "Analyse géographique des collaborations"
-BUTT_GEOPLOT = "Lancer le tracé"
+BUTT_GEOPLOT = "Tracé mappemonde"
+BUTT_GRAPH_COUNTRIES = "Tracé du graph"
 TEXT_WORDCLOUD = "Tracé des nuages de mots des mots-clés"
 TEXT_IFPLOT = "Tracé des Facteurs d'Impacts du corpus bibliographique"
 TEXT_IF_ANALYSIS = "Lancer le tracé"

@@ -97,9 +97,13 @@ def parse_kw_filename(bibliometer_path, corpus_year, metric, extension, datatype
     year_list = []
     kw_list = []
     
-    
-    files = [x for x in os.listdir(metric_analysis_folder_path) 
-                 if x.endswith(extension)]
+    if os.path.exists(metric_analysis_folder_path): 
+        files = [x for x in os.listdir(metric_analysis_folder_path) 
+                     if x.endswith(extension)]
+    else:
+        kw = None
+        return kw
+        
     for file in files:
         match = pattern.match(file)
         if match:

@@ -16,7 +16,6 @@ import webbrowser
 
 # 3rd party import
 import jinja2
-import json
 import networkx as nx
 import numpy as np
 import matplotlib.pyplot as plt
@@ -213,7 +212,6 @@ def add_title_to_node(G, txt):
     add hover data attribute to node. These hover data are formatted as html text.
     There consist in : (i) a heading <h4> containing the attribute of the node and a ordered list
     containing the number of articles co-authored with other countries.
-    
     """
     
     from_to_dict = defaultdict(list)
@@ -373,6 +371,11 @@ def plot_graph_countries(bm_path,institute,year,datatype,central_node_label):
     
 def build_header(institute,year,datatype,node_size_comment):
     
+    """
+    Function `build_header` builds an html formatted  title of the graph.
+    This function is called by plot_graph_departement and plot_graph_countries.
+    """
+    
     header = ( '<h1>'
                   f'<font color=#33afff><b>{institute} - {year}</b></font color>'
               '</h1>'
@@ -437,8 +440,6 @@ def plot_cooc_graph(G, item, size_min=None, node_size_ref=None):
     
     Note:
         The global `COOC_AUTHORIZED_ITEMS` is used.
-    
-     
     """
     
     if node_size_ref==None: node_size_ref = rg.NODE_SIZE_REF
