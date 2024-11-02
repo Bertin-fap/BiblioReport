@@ -1,9 +1,16 @@
+"""
+The `makeword` module builds a bibliography as a Word .docx document.
+The files "Liste consolidée <year>_Articles & Proceedings.xlsx", "Liste consolidée <year>_Books & Editorials.xlsx" are used as well as
+the file "Informations auteur par publication <year>.xlsx". These files are built by the package BiblioMeter.
+The template Word file "template_liste.docx" is used.
+The main function of this module is `make_document`.
+"""
+
 __all__ = ['make_document']
 import re
 from pathlib import Path
 
 import pandas as pd
-from difflib import SequenceMatcher
 from docxtpl import DocxTemplate
 
 # Local imports
@@ -12,8 +19,14 @@ from brfuncts.toolbox import  get_filename_listeconsolideebook
 from brfuncts.toolbox import  get_filename_analyseparauteurs
 from brfuncts.toolbox import  get_departements_list
 
-def dicriminate_nom_prenom(row):
-    auth = row['Premier auteur']
+def dicriminate_nom_prenom(row,col_name):
+    
+    """
+    The function `dicriminate_nom_prenom` normalizes the composite surname as surname_1 surnam_2 name into
+    surname_1-surnam_2 name. Ex: Bauer Cathenot F --> Bauer-Cathenot F.
+    """
+    
+    auth = row[col_name]
     chunk_list = auth.split(' ')
     if len(chunk_list)>2:
         auth = f'{chunk_list[0]}-{chunk_list[1]} {chunk_list[2]}'
@@ -34,6 +47,7 @@ def normalize_nom(nom):
     """
     Function `normalize_nom` capitalize name taking care of composite name
     """
+    
     flag_apostrophe = True if "'" in nom else False
     flag_dash = True if "-" in nom else False
     nom = ' '.join([x.capitalize() for x in re.split(r"[\s\-']+", nom)])
@@ -43,6 +57,12 @@ def normalize_nom(nom):
 
     
 def add_premier_dernier_auteur_colonnes(article_df,auth_df):
+
+    """
+    Function `add_premier_dernier_auteur_colonnes` adds the for columns : 'Is premier auteur inst',
+    'Is dernier auteur inst', 'Dernier auteur', 'Premier auteur' to the dataframe `article_df` using the
+    dataframe `auth_df`.
+    """
     
     check_is_premier_auteur_list = []
     check_is_dernier_auteur_list = []
@@ -72,6 +92,7 @@ def reverse_nom_prenom(row,row_name):
     """
     Function `reverse_nom_prenom` reverse the name and surname : Doe John --> John Doe
     """
+    
     first_author = row[row_name]
     if first_author:
         first_author = normalize_nom_prenom(first_author)
@@ -89,20 +110,21 @@ def extract_doctorants(row, inst):
 
     label_column = 'Liste ordonnée des auteurs ' + inst.capitalize()
     item = row[label_column]
-    doctorants = []
+    doctorants_list = []
     for author in item.split(';'):
         if re.findall(r'\((\d+,)?Doc', author):
-            author = re.sub(r'\([\w\d,]*\)', '', author).strip()
-            nom = normalize_nom(author.split(',')[0].strip())
-            prenom_initiale = author.split(',')[1].strip()[0]
-            author =  f'{prenom_initiale}. {nom}'
-            doctorants.append(author)
-    doctorants = ', '.join(doctorants)
+            doctorant = re.sub(r'\([\w\d,]*\)', '', author).strip()
+            nom = normalize_nom(doctorant.split(',')[0].strip())
+            prenom = doctorant.split(',')[1].strip()
+            prenom_initiale = '-'.join([chunck[0].upper() for chunck in prenom.split('-')])+'.'
+            doctorant =  f'{prenom_initiale} {nom}'
+            doctorants_list.append(doctorant)
+    doctorants = ', '.join(doctorants_list)
     
     return doctorants
 
 
-def read_and_format(file, inst, auth_df):
+def read_and_format(type_publi, inst, bm_path,year,datatype):
     
     """
     Function `read_and_format` read the Excel file "Liste consolidée 2023_Articles & Proceedings.xlsx" 
@@ -111,11 +133,23 @@ def read_and_format(file, inst, auth_df):
     "Dernier auteur inst" (boolan True if the last author of the article is part of the institute/department)
     Modifiy the columns "Premier auteur"
     """
+
+    auth_path = get_filename_analyseparauteurs(bm_path,year,datatype)
+    auth_df = pd.read_excel(auth_path)
+    auth_df = auth_df.rename(columns={"Nombre d'auteurs": 'Nb_auth',})
     auth_df['Premier auteur'] = auth_df['Premier auteur'].replace(r'\s+-\s+','-',regex=True)
     auth_df['Employee_full_name'] = auth_df['Employee_full_name'].replace(r'\s+-\s+','-',regex=True)
     auth_df['Co_auteur Liten'] = auth_df['Co_auteur Liten'].replace(r'\s+-\s+','-',regex=True)
-    
-    auth_df['Premier auteur'] = auth_df.apply(dicriminate_nom_prenom,axis=1)
+    auth_df['Premier auteur'] = auth_df.apply(dicriminate_nom_prenom,col_name='Premier auteur',axis=1)
+    auth_df['Employee_full_name'] = auth_df.apply(dicriminate_nom_prenom,col_name='Employee_full_name',axis=1)
+
+    if type_publi == "article":
+        file = get_filename_listeconsolideepubli(bm_path,year,datatype)
+    elif type_publi == "book":
+        file = get_filename_listeconsolideebook(bm_path,year,datatype)
+    else:
+        pass
+        
     df = pd.read_excel(file)
     df = add_premier_dernier_auteur_colonnes(df,auth_df)
     df['liste doctorants'] = df.apply(extract_doctorants,args=(inst,),axis=1)
@@ -124,6 +158,38 @@ def read_and_format(file, inst, auth_df):
 
     return df
 
+def builds_dep_dict(publi_df, inst):
+
+    """
+    The function `builds_dep_dic` builds a dict of list of dicts as: 
+    {<dep_name>:[{"Pub_id":<pub_id1>,...,"DOI":<doi1>},{"Pub_id":<pub_id2>,...,"DOI":<doi2>}...],...}
+    """
+    
+    inst_publi_dict = {}
+        
+    departements_list = get_departements_list(bm_path, inst)
+    for dep in departements_list:
+        dg = publi_df.query(f"`{dep}` == 1")
+        dep_publi_list_dict = []
+        for idx,row in enumerate(dg.iterrows()):
+            dep_publi_list_dict.append(row[1].to_dict() | dict(index=idx+1))
+        
+        inst_publi_dict[dep] = dep_publi_list_dict
+        
+    return inst_publi_dict
+    
+def builds_inst_list(publi_df, inst):
+    
+    inst_publi_list_dict = []
+   
+    for idx, row in enumerate(publi_df.iterrows()):
+        inst_publi_list_dict.append(row[1].to_dict() | dict(index=idx+1))
+        if idx> 15000: 
+            print(row)
+            break
+        
+    return inst_publi_list_dict
+    
 def make_document(bm_path, file_template, year, inst, datatype):
     
     """
@@ -132,59 +198,32 @@ def make_document(bm_path, file_template, year, inst, datatype):
     see the docxtpl :   https://docxtpl.readthedocs.io/en/latest/  for usage.
     """
     
-    file_article = get_filename_listeconsolideepubli(bm_path,year,datatype)
-    
-    auth_path = get_filename_analyseparauteurs(bm_path,year,datatype)
-    auth_df = pd.read_excel(auth_path)
-    auth_df = auth_df.rename(columns={"Nombre d'auteurs": 'Nb_auth',})
-    publi_df = read_and_format(file_article, inst, auth_df)
-
-    file_book = get_filename_listeconsolideebook(bm_path,year,datatype)
-    book_df = read_and_format(file_book, inst, auth_df)
+    publi_df = read_and_format("article", inst, bm_path,year,datatype)
+    book_df = read_and_format("book", inst, bm_path,year,datatype)
     
     # Load the template
     doc = DocxTemplate(file_template)
     
-    # Define the list of publications
-    inst_publi_dict = {}
-    inst_book_dict = {}
-    inst_tot_publi_dict = {}
-    inst_tot_book_dict = {}
-    
-    inst_publi_list_dict = []
-    inst_book_list_dict = []
-    for idx, row in enumerate(publi_df.iterrows()):
-        inst_publi_list_dict.append(row[1].to_dict() | dict(index=idx+1))
-    for idx,row in enumerate(book_df.iterrows()):
-        inst_book_list_dict.append(row[1].to_dict() | dict(index=idx+1))
-        
-    departements_list = get_departements_list(bm_path, inst)
-    for dep in departements_list:
-        dg = publi_df.query(f"`{dep}` == 1")
-        dh = book_df.query(f"`{dep}` == 1")
-        dep_publi_list_dict = []
-        dep_book_list_dict = []
-        for idx,row in enumerate(dg.iterrows()):
-            dep_publi_list_dict.append(row[1].to_dict() | dict(index=idx+1))
-        for idx, row in enumerate(dh.iterrows()):
-            dep_book_list_dict.append(row[1].to_dict() | dict(index=idx+1))
-        
-        inst_publi_dict[dep] = dep_publi_list_dict
-        inst_book_dict[dep] = dep_book_list_dict
+    # Builds the master dict and list
+    inst_publi_list_dict = builds_inst_list(publi_df, inst)
+    inst_book_list_dict = builds_inst_list(book_df, inst)
+    inst_publi_dict = builds_dep_dict(publi_df, inst)
+    inst_book_dict = builds_dep_dict(book_df, inst)
     
     context = {
-        "year" : year,
-        "institut":inst,
-        "publi_list" : inst_publi_dict,
-        "book_list" : inst_book_dict,
-        "inst_publi_list" : inst_publi_list_dict,
-        "inst_book_list" : inst_book_list_dict,
-        "deps":list(inst_publi_dict.keys()),
-    }
+               "year" : year,
+               "institut":inst,
+               "publi_list" : inst_publi_dict,
+               "book_list" : inst_book_dict,
+               "inst_publi_list" : inst_publi_list_dict,
+               "inst_book_list" : inst_book_list_dict,
+               "deps":list(inst_publi_dict.keys()),
+              }
 
     # Render the template with the context
     doc.render(context)
     
     # Save the populated document
+    file_article = get_filename_listeconsolideepubli(bm_path,year,datatype)
     file_output = Path(file_article).parents[0] / f'biblio_{inst}_{str(year)}.docx'
     doc.save(file_output)
