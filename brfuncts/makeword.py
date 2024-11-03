@@ -157,7 +157,7 @@ def read_and_format(type_publi:str, inst:str, bm_path:pathlib.Path,year:int,data
     df['liste doctorants'] = df.apply(extract_doctorants,args=(inst,),axis=1)
     df['Premier auteur'] = df.apply(reverse_nom_prenom,col_name='Premier auteur',axis=1)
     df['Dernier auteur'] = df.apply(reverse_nom_prenom,col_name='Dernier auteur',axis=1)
-    # Suppreesion of the markdown used to format the title (ex : subscipt)
+    # Suppreesion of the markdown used to format in the title (ex : subscipt)
     df['Titre'] = df['Titre'].replace(r'<[\w/]+>','',regex=True)
     return df
 
@@ -195,7 +195,7 @@ def builds_inst_list(publi_df:pd.DataFrame, inst:str)->list:
         
     return inst_publi_list_dict
     
-def make_document(bm_path:pathlib.Path, file_template:pathlib.Path, year:int, inst:str, datatype:str)->None:
+def make_document(bm_path:pathlib.Path, file_template:pathlib.Path, year:int, inst:str, datatype:str,perimeter:str)->None:
     
     """
     Function `make_document` builds the bibliograpy as a Word document fir the corpus
@@ -206,7 +206,6 @@ def make_document(bm_path:pathlib.Path, file_template:pathlib.Path, year:int, in
     publi_df = read_and_format("article", inst, bm_path,year,datatype)
     book_df = read_and_format("book", inst, bm_path,year,datatype)
     
-    # Load the template
     doc = DocxTemplate(file_template)
     
     # Builds the master dict and list
@@ -217,6 +216,7 @@ def make_document(bm_path:pathlib.Path, file_template:pathlib.Path, year:int, in
     
     context = {
                "year" : year,
+               "perimeter" : perimeter,
                "institut":inst,
                "publi_list" : inst_publi_dict,
                "book_list" : inst_book_dict,
@@ -230,5 +230,21 @@ def make_document(bm_path:pathlib.Path, file_template:pathlib.Path, year:int, in
     
     # Save the populated document
     file_article = get_filename_listeconsolideepubli(bm_path,year,datatype)
-    file_output = Path(file_article).parents[0] / f'biblio_{inst}_{str(year)}.docx'
+    file_output = Path(file_article).parents[0] / f'biblio_{inst}_{str(year)}_{perimeter}.docx'
     doc.save(file_output)
+
+def master_make_document(bm_path:pathlib.Path, year:int, inst:str, datatype:str, perimeter:str="all")->None:
+    # Load the template
+    if perimeter=="inst":
+        file_template = r"c:\users\franc\Temp\template_inst.docx"
+        make_document(bm_path, file_template, year, inst, datatype, perimeter)
+       
+    elif perimeter=="all":
+        file_template = r"c:\users\franc\Temp\template_all.docx"
+        make_document(bm_path, file_template, year, inst, datatype, perimeter)
+        
+    elif perimeter=="departement":
+        file_template = r"c:\users\franc\Temp\template_departement.docx"
+        departements_list = get_departements_list(bm_path, inst)
+        for departement in departements_list:
+            make_document(bm_path, file_template, year, inst, datatype, departement)
