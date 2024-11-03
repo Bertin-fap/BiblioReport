@@ -9,6 +9,7 @@ The main function of this module is `make_document`.
 __all__ = ['make_document']
 import re
 from pathlib import Path
+import pathlib
 
 import pandas as pd
 from docxtpl import DocxTemplate
@@ -19,7 +20,7 @@ from brfuncts.toolbox import  get_filename_listeconsolideebook
 from brfuncts.toolbox import  get_filename_analyseparauteurs
 from brfuncts.toolbox import  get_departements_list
 
-def dicriminate_nom_prenom(row,col_name):
+def dicriminate_nom_prenom(row:str,col_name:str)->str:
     
     """
     The function `dicriminate_nom_prenom` normalizes the composite surname as surname_1 surnam_2 name into
@@ -32,17 +33,17 @@ def dicriminate_nom_prenom(row,col_name):
         auth = f'{chunk_list[0]}-{chunk_list[1]} {chunk_list[2]}'
     return auth
 
-def normalize_nom_prenom(auth):
+def normalize_nom_prenom(auth:str)->str:
     auth_normalized = f"{normalize_prenom(auth.split()[1])} {normalize_nom(auth.split()[0])}"
     return auth_normalized
 
-def normalize_prenom(prenom):
+def normalize_prenom(prenom:str)->str:
     prenom = prenom.replace('-','').upper()
     prenom = '-'.join(list(prenom))+'.'
 
     return prenom
     
-def normalize_nom(nom):
+def normalize_nom(nom:str)->str:
     
     """
     Function `normalize_nom` capitalize name taking care of composite name
@@ -56,7 +57,7 @@ def normalize_nom(nom):
     return nom
 
     
-def add_premier_dernier_auteur_colonnes(article_df,auth_df):
+def add_premier_dernier_auteur_colonnes(article_df:pd.DataFrame,auth_df:pd.DataFrame)->pd.DataFrame:
 
     """
     Function `add_premier_dernier_auteur_colonnes` adds the for columns : 'Is premier auteur inst',
@@ -87,25 +88,26 @@ def add_premier_dernier_auteur_colonnes(article_df,auth_df):
     return article_df       
 
 
-def reverse_nom_prenom(row,row_name):
+def reverse_nom_prenom(row:str,col_name:str)->str:
     
     """
     Function `reverse_nom_prenom` reverse the name and surname : Doe John --> John Doe
     """
     
-    first_author = row[row_name]
+    first_author = row[col_name]
     if first_author:
         first_author = normalize_nom_prenom(first_author)
         return first_author
     return ''
 
 
-def extract_doctorants(row, inst):
+def extract_doctorants(row:str, inst:str)->str:
     
     """
     Function `extract_doctorants` extact the list of names and surnames of the PhD 
     from a string "<surname1, name1>(stuff1);surname2, name2>(stuff2) ...". The surname and name
-    are those of a PhD iff stuff1 contains "(<d+>,Doc>".
+    are those of a PhD iff stuff<i> contains "(<d+>,Doc>". Then `extract_doctorants builds a
+    string N1. Surname1, N2. Surname2, ... with all the PhD normalized names and surnames.
     """ 
 
     label_column = 'Liste ordonnée des auteurs ' + inst.capitalize()
@@ -124,7 +126,7 @@ def extract_doctorants(row, inst):
     return doctorants
 
 
-def read_and_format(type_publi, inst, bm_path,year,datatype):
+def read_and_format(type_publi:str, inst:str, bm_path:pathlib.Path,year:int,datatype:str)->pd.DataFrame:
     
     """
     Function `read_and_format` read the Excel file "Liste consolidée 2023_Articles & Proceedings.xlsx" 
@@ -133,7 +135,7 @@ def read_and_format(type_publi, inst, bm_path,year,datatype):
     "Dernier auteur inst" (boolan True if the last author of the article is part of the institute/department)
     Modifiy the columns "Premier auteur"
     """
-
+    
     auth_path = get_filename_analyseparauteurs(bm_path,year,datatype)
     auth_df = pd.read_excel(auth_path)
     auth_df = auth_df.rename(columns={"Nombre d'auteurs": 'Nb_auth',})
@@ -153,12 +155,13 @@ def read_and_format(type_publi, inst, bm_path,year,datatype):
     df = pd.read_excel(file)
     df = add_premier_dernier_auteur_colonnes(df,auth_df)
     df['liste doctorants'] = df.apply(extract_doctorants,args=(inst,),axis=1)
-    df['Premier auteur'] = df.apply(reverse_nom_prenom,row_name='Premier auteur',axis=1)
-    df['Dernier auteur'] = df.apply(reverse_nom_prenom,row_name='Dernier auteur',axis=1)
-
+    df['Premier auteur'] = df.apply(reverse_nom_prenom,col_name='Premier auteur',axis=1)
+    df['Dernier auteur'] = df.apply(reverse_nom_prenom,col_name='Dernier auteur',axis=1)
+    # Suppreesion of the markdown used to format the title (ex : subscipt)
+    df['Titre'] = df['Titre'].replace(r'<[\w/]+>','',regex=True)
     return df
 
-def builds_dep_dict(publi_df, inst):
+def builds_dep_dict(publi_df:pd.DataFrame, inst:str)->dict:
 
     """
     The function `builds_dep_dic` builds a dict of list of dicts as: 
@@ -178,19 +181,21 @@ def builds_dep_dict(publi_df, inst):
         
     return inst_publi_dict
     
-def builds_inst_list(publi_df, inst):
+def builds_inst_list(publi_df:pd.DataFrame, inst:str)->list:
+
+    """
+    The function `builds_inst_list` builds a list of dicts as: 
+    [{"Pub_id":<pub_id1>,...,"DOI":<doi1>},{"Pub_id":<pub_id2>,...,"DOI":<doi2>}...]
+    """
     
     inst_publi_list_dict = []
    
     for idx, row in enumerate(publi_df.iterrows()):
         inst_publi_list_dict.append(row[1].to_dict() | dict(index=idx+1))
-        if idx> 15000: 
-            print(row)
-            break
         
     return inst_publi_list_dict
     
-def make_document(bm_path, file_template, year, inst, datatype):
+def make_document(bm_path:pathlib.Path, file_template:pathlib.Path, year:int, inst:str, datatype:str)->None:
     
     """
     Function `make_document` builds the bibliograpy as a Word document fir the corpus
