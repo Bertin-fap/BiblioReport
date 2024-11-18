@@ -1,15 +1,15 @@
 __all_ = ['CLOUD_BCKG',
-          'CLOUD_HEIGHT',
+         'CLOUD_HEIGHT',
 		  'CLOUD_WIDTH',
 		  'CLOUD_MAX_WORDS',
 		  'CLOUD_MAX_WORDS_LENGTH',
-          'COOC_AUTHORIZED_ITEMS',
-          'COOC_AUTHORIZED_ITEMS_DICT',
-          'COOC_HTML_PARAM',
-          'COUNTRIES_GPS',
-          'COUPL_AUTHORIZED_ITEMS',
+         'COOC_AUTHORIZED_ITEMS',
+         'COOC_AUTHORIZED_ITEMS_DICT',
+         'COOC_HTML_PARAM',
+         'COUNTRIES_GPS',
+         'COUPL_AUTHORIZED_ITEMS',
 		  'BAR_Y_LABEL_MAX',
-          'BAR_X_RANGE',
+         'BAR_X_RANGE',
 		  'BAR_Y_MAX',
 		  'BAR_WIDTH',
 		  'BAR_HEIGHT',
@@ -17,12 +17,12 @@ __all_ = ['CLOUD_BCKG',
 		  'BAR_COLOR_RANGE',
 		  'BAR_COLOR_SCALE'
 		  'COUNTRIES_CODES_DICT',
-          'COUNTRIES_CONTINENT_DICT',
-          'NODE_SIZE_REF',
-          'NODE_FONT_COLOR',
-          'NODE_FONT_SIZE',
-          'SIZE_MIN',
-          'UNKNOWN'
+         'COUNTRIES_CONTINENT_DICT',
+         'NODE_SIZE_REF',
+         'NODE_FONT_COLOR',
+         'NODE_FONT_SIZE',
+         'SIZE_MIN',
+         'UNKNOWN'
 		  ]
           
 # Standard library imports
@@ -34,7 +34,7 @@ CLOUD_BCKG             = 'ivory'
 CLOUD_HEIGHT           = 600
 CLOUD_WIDTH            = 400
 CLOUD_MAX_WORDS        = 100
-CLOUD_MAX_WORDS_LENGTH = 60
+CLOUD_MAX_WORDS_LENGTH  = 60
 
 # Parameters of bar chart representation
 BAR_Y_LABEL_MAX  = 35          # Nb of characters
@@ -55,10 +55,10 @@ UNKNOWN = 'unknown'
 
 # Parameters of graph construction and  plot
 COOC_HTML_PARAM = {'algo'      : 'barnes',
-                   'height'    : 1000,
-                   'width'     : 1300,
-                   'bgcolor'   : "#222222", #'#9E9E9E', #     '#EAEDED',
-                   'font_color': 'white',
+                 'height'     : 1000,
+                 'width'      : 1300,
+                 'bgcolor'    : "#222222", #'#9E9E9E', #     '#EAEDED',
+                 'font_color' : 'white',
                   }
 
 LABEL_MEANING = {'AU':'Authors',              # ex: Nom1 J, Nom2 E, Nom3 J-P

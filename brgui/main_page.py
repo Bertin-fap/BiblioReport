@@ -256,7 +256,7 @@ class AppMain(tk.Tk):
         #self.lift()
         self.attributes("-topmost", True)
         self.after_idle(self.attributes,'-topmost', False)
-        icon_path = Path(__file__).parent.parent / Path('brfuncts') / Path(pg.CONFIG_FOLDER)
+        icon_path = Path(__file__).parent.parent / Path('brfuncts') / Path('ConfigFiles')
         icon_path = icon_path / Path('BM-logo.ico')
         self.iconbitmap(icon_path)
         #self.REP = list()

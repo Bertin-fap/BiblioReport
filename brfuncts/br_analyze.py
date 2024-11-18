@@ -503,7 +503,7 @@ def _create_if_barchart(corpus_year,
     # Setting new col names and related parameters
     journal_short_col_alias = pg.COL_NAMES_IF_ANALYSIS['journal_short']
     articles_nb_col_alias   = pg.COL_NAMES_IF_ANALYSIS['articles_nb']
-    max_journal_short_name  = pg.BAR_Y_LABEL_MAX
+    max_journal_short_name  = rg.BAR_Y_LABEL_MAX
 
     # Creating columns with shortnames of journals for barchart plots
     plot_df = if_df.copy()

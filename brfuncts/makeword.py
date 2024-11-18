@@ -6,11 +6,16 @@ The template Word file "template_liste.docx" is used.
 The main function of this module is `make_document`.
 """
 
-__all__ = ['make_document']
+__all__ = ['master_make_document',
+          'make_document']
+          
+# Standard library imports
 import re
 from pathlib import Path
 import pathlib
+from tkinter import messagebox
 
+# Third party imports
 import pandas as pd
 from docxtpl import DocxTemplate
 
@@ -40,7 +45,6 @@ def normalize_nom_prenom(auth:str)->str:
 def normalize_prenom(prenom:str)->str:
     prenom = prenom.replace('-','').upper()
     prenom = '-'.join(list(prenom))+'.'
-
     return prenom
     
 def normalize_nom(nom:str)->str:
@@ -84,7 +88,6 @@ def add_premier_dernier_auteur_colonnes(article_df:pd.DataFrame,auth_df:pd.DataF
     article_df['Is dernier auteur inst'] = check_is_dernier_auteur_list
     article_df['Dernier auteur'] = last_author_list
     article_df['Premier auteur'] = first_author_list
-    
     return article_df       
 
 
@@ -122,7 +125,6 @@ def extract_doctorants(row:str, inst:str)->str:
             doctorant =  f'{prenom_initiale} {nom}'
             doctorants_list.append(doctorant)
     doctorants = ', '.join(doctorants_list)
-    
     return doctorants
 
 
@@ -161,7 +163,7 @@ def read_and_format(type_publi:str, inst:str, bm_path:pathlib.Path,year:int,data
     df['Titre'] = df['Titre'].replace(r'<[\w/]+>','',regex=True)
     return df
 
-def builds_dep_dict(publi_df:pd.DataFrame, inst:str)->dict:
+def builds_dep_dict(publi_df:pd.DataFrame, inst:str, bm_path:pathlib.Path)->dict:
 
     """
     The function `builds_dep_dic` builds a dict of list of dicts as: 
@@ -177,8 +179,7 @@ def builds_dep_dict(publi_df:pd.DataFrame, inst:str)->dict:
         for idx,row in enumerate(dg.iterrows()):
             dep_publi_list_dict.append(row[1].to_dict() | dict(index=idx+1))
         
-        inst_publi_dict[dep] = dep_publi_list_dict
-        
+        inst_publi_dict[dep] = dep_publi_list_dict  
     return inst_publi_dict
     
 def builds_inst_list(publi_df:pd.DataFrame, inst:str)->list:
@@ -191,8 +192,7 @@ def builds_inst_list(publi_df:pd.DataFrame, inst:str)->list:
     inst_publi_list_dict = []
    
     for idx, row in enumerate(publi_df.iterrows()):
-        inst_publi_list_dict.append(row[1].to_dict() | dict(index=idx+1))
-        
+        inst_publi_list_dict.append(row[1].to_dict() | dict(index=idx+1))   
     return inst_publi_list_dict
     
 def make_document(bm_path:pathlib.Path, file_template:pathlib.Path, year:int, inst:str, datatype:str,perimeter:str)->None:
@@ -211,8 +211,8 @@ def make_document(bm_path:pathlib.Path, file_template:pathlib.Path, year:int, in
     # Builds the master dict and list
     inst_publi_list_dict = builds_inst_list(publi_df, inst)
     inst_book_list_dict = builds_inst_list(book_df, inst)
-    inst_publi_dict = builds_dep_dict(publi_df, inst)
-    inst_book_dict = builds_dep_dict(book_df, inst)
+    inst_publi_dict = builds_dep_dict(publi_df, inst, bm_path)
+    inst_book_dict = builds_dep_dict(book_df, inst, bm_path)
     
     context = {
                "year" : year,
@@ -232,19 +232,25 @@ def make_document(bm_path:pathlib.Path, file_template:pathlib.Path, year:int, in
     file_article = get_filename_listeconsolideepubli(bm_path,year,datatype)
     file_output = Path(file_article).parents[0] / f'biblio_{inst}_{str(year)}_{perimeter}.docx'
     doc.save(file_output)
+    print(file_output)
+    #messagebox.showinfo("MakeWord", file_output)
 
 def master_make_document(bm_path:pathlib.Path, year:int, inst:str, datatype:str, perimeter:str="all")->None:
     # Load the template
+    template_path = Path(__file__).parent / Path('ConfigFiles')
+   
     if perimeter=="inst":
-        file_template = r"c:\users\franc\Temp\template_inst.docx"
+        file_template = template_path / 'template_inst.docx'
         make_document(bm_path, file_template, year, inst, datatype, perimeter)
        
     elif perimeter=="all":
-        file_template = r"c:\users\franc\Temp\template_all.docx"
+        file_template = template_path / 'template_all.docx'
         make_document(bm_path, file_template, year, inst, datatype, perimeter)
         
     elif perimeter=="departement":
-        file_template = r"c:\users\franc\Temp\template_departement.docx"
+        file_template = template_path / 'template_departement.docx'
         departements_list = get_departements_list(bm_path, inst)
         for departement in departements_list:
             make_document(bm_path, file_template, year, inst, datatype, departement)
+    else:
+        print(f'unknown {perimeter}')
