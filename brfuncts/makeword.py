@@ -232,8 +232,8 @@ def make_document(bm_path:pathlib.Path, file_template:pathlib.Path, year:int, in
     file_article = get_filename_listeconsolideepubli(bm_path,year,datatype)
     file_output = Path(file_article).parents[0] / f'biblio_{inst}_{str(year)}_{perimeter}.docx'
     doc.save(file_output)
-    print(file_output)
-    #messagebox.showinfo("MakeWord", file_output)
+    #print(file_output)
+    messagebox.showinfo("MakeWord", file_output)
 
 def master_make_document(bm_path:pathlib.Path, year:int, inst:str, datatype:str, perimeter:str="all")->None:
     # Load the template

@@ -2,17 +2,20 @@ _all__ = ['create_word_biblio']
 
 import tkinter as tk
 from tkinter import font as tkFont
+from tkinter import messagebox
+from pathlib import Path
 
 from bmgui.gui_utils import place_after
 from bmgui.gui_utils import place_bellow
 from bmgui.gui_utils import font_size
 from bmgui.gui_utils import mm_to_px
+from brfuncts.makeword import master_make_document
 
 from bmgui.gui_utils import last_available_years
 import bmgui.gui_globals as gg
 import brgui.gui_globals as ggr
 
-def create_word_biblio(self,master, page_name, institute, bibliometer_path, datatype):
+def create_word_biblio(self,master, page_name, institute, bm_path, datatype):
 
     """interactive selection of items among the list list-item
     
@@ -25,12 +28,21 @@ def create_word_biblio(self,master, page_name, institute, bibliometer_path, data
     """
    
     
-    global val
+    global year_list
+    year_list = []
  
     def selected_item():
-        global val
-        val = [list_items[i] for i in  listbox.curselection()]
-        print(val)
+        global year_list
+        year_list = [list_items[i] for i in  listbox.curselection()]
+   
+    def _create_word():
+        global year_list
+        if not year_list:
+            messagebox.showinfo("MakeWord", "Please select years")
+            return
+        for year in year_list:
+            datatype_without_blank = datatype.replace(' ','')
+            master_make_document(Path(bm_path), year, institute, datatype_without_blank, "departement")
         
     from brgui.main_page import AppMain
 
@@ -60,7 +72,7 @@ def create_word_biblio(self,master, page_name, institute, bibliometer_path, data
                                 font = self.font_Label_years)
     self.Label_years.place(x = year_button_x_pos, y = year_button_y_pos)
     
-    list_items = last_available_years(bibliometer_path, gg.CORPUSES_NUMBER)
+    list_items = last_available_years(bm_path, gg.CORPUSES_NUMBER)
     
     listbox = tk.Listbox(self, width=5, height=10, selectmode=tk.MULTIPLE,)
     place_bellow(self.Label_years, listbox, dy = 10, dx=70)
@@ -74,6 +86,10 @@ def create_word_biblio(self,master, page_name, institute, bibliometer_path, data
     btn = tk.Button(self, text='OK', command=selected_item)
     
     place_bellow(listbox,btn,dy=10,dx=5)
+    
+    btn_create_word = tk.Button(self, text='Lancer la création des fichiers', command=_create_word)
+    
+    place_bellow(btn,btn_create_word,dy=10,dx=0)
     
 
 
