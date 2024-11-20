@@ -5,6 +5,7 @@ __all__ = ['ADD_SPACE_MM',
            'CORPUSES_NUMBER',
            'FONT_NAME',
            'HELP_GEO_PLOT',
+           'HELP_GRAPH_DEP',
            'HELP_IF_PLOT',
            'HELP_KW_PLOT',
            'KW_DICT',
@@ -33,6 +34,7 @@ __all__ = ['ADD_SPACE_MM',
            'TEXT_BMF_CHANGE',
            'TEXT_CORPUSES',
            'TEXT_DATATYPE',
+           'TEXT_GRAPH_DEP',
            'TEXT_INSTITUTE',
            'PAGES_LABELS',
            'APPLICATION_WINDOW_TITLE',
@@ -85,7 +87,8 @@ REF_LABEL_DX_Y_MM = bmgg.REF_LABEL_DX_Y_MM
 
 
 PAGES_LABELS = dict(Word="Bibliographie Word",
-                    Plots="KPI plots")
+                  Plots="KPI plots",
+                  Graph="Graph plots",)
 APPLICATION_WINDOW_TITLE = "BiblioReport Création de documents et de graphes"
 TEXT_YEAR_PI = "Sélection de(s) année(s)"
 TEXT_YEAR_KPI = "Sélection de l'année"
@@ -102,3 +105,5 @@ TEXT_IF_ANALYSIS = "Lancer le tracé"
 KW_DICT = dict(AK = "Authors",
                TK = "Title",
                IK = "Index")
+TEXT_GRAPH_DEP = "Tracé du graphe des collaborations entre départements"
+HELP_GRAPH_DEP = "L'analyse du graphe des collaborations entre départements est effectuée à partir des fichiers Excel générés par BibloMeter"

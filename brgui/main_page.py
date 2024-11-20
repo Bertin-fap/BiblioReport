@@ -32,6 +32,7 @@ from bmfuncts.useful_functs import create_archi
 from bmfuncts.useful_functs import set_rawdata
 from brgui.pageword import create_word_biblio
 from brgui.pageplots import create_analysis
+from brgui.pagegraph import create_graph_dep
 from bmgui.gui_utils import place_bellow
 from bmgui.main_page import SetAuthorCopyright
 from bmgui.main_page import SetLaunchButton
@@ -272,7 +273,8 @@ class AppMain(tk.Tk):
 
         # Setting pages classes and pages list
         AppMain.pages = (Word,
-                         Plots,
+                        Plots,
+                        Graph,
                          )
         AppMain.pages_ordered_list = [x.__name__ for x in AppMain.pages][::-1]
 
@@ -429,6 +431,25 @@ class Plots(tk.Frame):
 
         # Creating and setting widgets for page frame
         create_analysis(self, master, page_name, institute, bibliometer_path, datatype)
+        
+        set_page_title(self, master, page_name, institute, datatype)
+        set_exit_button(self, master)
+        
+class Graph(tk.Frame):
+    """PAGE 2 'Consolidation annuelle des corpus'.
+    """
+    def __init__(self, master, pagebutton_frame, page_frame, institute, bibliometer_path, datatype):
+        super().__init__(page_frame)
+        self.controller = master
+
+        # Setting page name
+        page_name = self.__class__.__name__
+
+        # Creating and setting widgets for page button
+        PageButton(master, page_name, pagebutton_frame)
+
+        # Creating and setting widgets for page frame
+        create_graph_dep(self, master, page_name, institute, bibliometer_path, datatype)
         
         set_page_title(self, master, page_name, institute, datatype)
         set_exit_button(self, master)

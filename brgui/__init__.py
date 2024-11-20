@@ -8,5 +8,6 @@ __license__ = 'MIT'
 from brgui.gui_globals import *
 from brgui.pageword import *
 from brgui.pageplots import *
+from brgui.pagegraph import *
 from brgui.main_page import *
 from brgui.gui_utils import *
