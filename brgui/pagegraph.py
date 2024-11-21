@@ -36,6 +36,7 @@ from brfuncts.br_analyze import create_kw_cloud
 from brfuncts.br_analyze import plot_countries_analysis
 from brfuncts.br_analyze import plot_if_analysis
 from brfuncts.graph_lib import plot_graph_departement
+from brfuncts.graph_lib import plot_graph_countries
 
 
 # Standard library imports
@@ -50,6 +51,11 @@ import plotly.graph_objs as go
     
 def _launch_graph_analysis(year,bibliometer_path, datatype,institute):
     G = plot_graph_departement(Path(bibliometer_path),institute,year,datatype.replace(' ',''))
+    
+def _launch_graph_country(year,bibliometer_path, datatype,institute):
+    central_country = 'France'
+    G = plot_graph_countries(bibliometer_path,institute,year,datatype,central_country)
+    
 
 def create_graph_dep(self, master, page_name, institute, bibliometer_path, datatype):
     """
@@ -70,6 +76,10 @@ def create_graph_dep(self, master, page_name, institute, bibliometer_path, datat
     def _launch_graph_analysis_try():
         year_select = variable_years.get()
         _launch_graph_analysis(int(year_select),bibliometer_path, datatype,institute)
+        
+    def _launch_graph_country_try():
+        year_select = variable_years.get()
+        _launch_graph_country(int(year_select),bibliometer_path, datatype,institute)
         
 
     # Setting effective font sizes and positions (numbers are reference values)
@@ -161,4 +171,44 @@ def create_graph_dep(self, master, page_name, institute, bibliometer_path, datat
                dep_analysis_launch_button,
                dx=0,
                dy=10)
+               
+    ###################################################
+    # Creating and setting geographics analysis widgets
+    ###################################################
+
+    # - Setting title
+    co_analysis_label_font = tkFont.Font(family=gg.FONT_NAME,
+                                         size=eff_etape_font_size,
+                                         weight='bold')
+    co_analysis_label = tk.Label(self,
+                                 text=gg.TEXT_GEOPLOT,
+                                 justify="left",
+                                 font=co_analysis_label_font)
+    place_bellow(dep_analysis_launch_button,
+                co_analysis_label,
+                dx=0,
+                dy=co_analysis_label_dy_px)
+
+    # - Setting help text
+    help_label_font = tkFont.Font(family=gg.FONT_NAME,
+                                  size=eff_help_font_size)
+    help_label_if = tk.Label(self,
+                          text=gg.HELP_GEO_PLOT,
+                          justify="left",
+                          font=help_label_font)
+    place_bellow(co_analysis_label,
+                help_label_if)
+
+    # - Setting launch button gaph
+    co_analysis_launch_font = tkFont.Font(family=gg.FONT_NAME,
+                                       size=eff_launch_font_size)
+    co_analysis_launch_button = tk.Button(self,
+                                       text = gg.TEXT_IF_ANALYSIS,
+                                       font = co_analysis_launch_font,
+                                       command = _launch_graph_country_try)
+    place_bellow(help_label_if,
+                co_analysis_launch_button,
+                dx = 0,
+                dy = launch_dy_px)
+
     

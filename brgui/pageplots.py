@@ -35,7 +35,6 @@ from brfuncts.br_analyze import parse_kw_filename
 from brfuncts.br_analyze import create_kw_cloud
 from brfuncts.br_analyze import plot_countries_analysis
 from brfuncts.br_analyze import plot_if_analysis
-from brfuncts.graph_lib import plot_graph_countries
 
 
 # Standard library imports
@@ -49,10 +48,6 @@ import plotly.graph_objs as go
 
 def _plot_countries_analysis(year,biblio_path,datatype,institute):
     plot_countries_analysis(year,biblio_path,datatype,institute)
-    
-def _launch_graph_analysis(year,bibliometer_path, datatype,institute):
-    central_country = 'France'
-    G = plot_graph_countries(bibliometer_path,institute,year,datatype,central_country)
 
 def create_analysis(self, master, page_name, institute, bibliometer_path, datatype):
     """
@@ -100,11 +95,6 @@ def create_analysis(self, master, page_name, institute, bibliometer_path, dataty
         
         _plot_countries_analysis(int(year_select),bibliometer_path, datatype,institute)
         
-    def _launch_graph_analysis_try():
-        year_select = variable_years.get()
-        _launch_graph_analysis(int(year_select),bibliometer_path, datatype,institute)
-        
-
     # Setting effective font sizes and positions (numbers are reference values)
     eff_etape_font_size = font_size(gg.REF_ETAPE_FONT_SIZE, master.width_sf_min)           # 14
     eff_launch_font_size = font_size(gg.REF_ETAPE_FONT_SIZE-1, master.width_sf_min)
@@ -260,17 +250,6 @@ def create_analysis(self, master, page_name, institute, bibliometer_path, dataty
                 dx = launch_dx_px,
                 dy = launch_dy_px)
 
-    # - Setting launch button graph
-    graph_launch_font = tkFont.Font(family=gg.FONT_NAME,
-                                 size=eff_launch_font_size)
-    graph_launch_button = tk.Button(self,
-                                 text = gg.BUTT_GRAPH_COUNTRIES,
-                                 font = graph_launch_font,
-                                 command = _launch_graph_analysis_try)
-    place_after(co_analysis_launch_button,
-               graph_launch_button,
-               dx = 50,
-               dy = 0)
     ################################################
     # Creating and setting keywords analysis widgets
     ################################################
