@@ -3,11 +3,14 @@ __all__ = ["get_departements_list",
          "get_filename_listeconsolideebook",
          "get_filename_analyseparauteurs",
          "get_filename_listeconsolidee"]
-         
+
+# Standard library imports
+import json 
+import pathlib        
 from pathlib import Path
-import json
+
         
-def get_departements_list(bm_path, institute):
+def get_departements_list(bm_path:pathlib.Path, institute:str)->list:
     
     """
     Function `get_departements_list` gets the institute departements list from the json file
@@ -28,7 +31,7 @@ def get_departements_list(bm_path, institute):
     
     return dep_list
 
-def get_filename_listeconsolideepubli(bm_path,year,datatype):
+def get_filename_listeconsolideepubli(bm_path:pathlib.Path,year:int,datatype:str)->pathlib.Path:
 
     file_name = 'Liste consolidée '+ str(year) + '_Articles & Proceedings.xlsx'
     bm_path = bm_path / 'Sauvegarde des résultats' / datatype / str(year)
@@ -36,7 +39,7 @@ def get_filename_listeconsolideepubli(bm_path,year,datatype):
     
     return file
 
-def get_filename_listeconsolideebook(bm_path,year,datatype):
+def get_filename_listeconsolideebook(bm_path:pathlib.Path,year:int,datatype:str)->pathlib.Path:
 
     file_name = 'Liste consolidée '+ str(year) + '_Books & Editorials.xlsx'
     bm_path = bm_path / 'Sauvegarde des résultats' / datatype / str(year)
@@ -44,7 +47,7 @@ def get_filename_listeconsolideebook(bm_path,year,datatype):
     
     return file 
 
-def get_filename_analyseparauteurs(bm_path,year,datatype):
+def get_filename_analyseparauteurs(bm_path:pathlib.Path,year:int,datatype:str):
 
     file_name = f'Informations auteur par publication {str(year)}.xlsx'
     bm_path = bm_path / 'Sauvegarde des résultats' / datatype / str(year)
@@ -52,7 +55,7 @@ def get_filename_analyseparauteurs(bm_path,year,datatype):
     
     return file 
     
-def get_filename_listeconsolidee(bm_path,year,datatype):
+def get_filename_listeconsolidee(bm_path:pathlib.Path,year:int,datatype:str)->pathlib.Path:
 
     file_name = 'Liste consolidée '+ str(year) + '.xlsx'
     bm_path = bm_path / 'Sauvegarde des résultats' / datatype / str(year)

@@ -12,6 +12,7 @@ __all__ = ["add_title_to_node",
 import math
 from collections import defaultdict
 from pathlib import Path
+import pathlib
 import webbrowser
 
 # 3rd party import
@@ -30,7 +31,7 @@ from brfuncts.toolbox import  get_filename_listeconsolideebook
 from brfuncts.toolbox import  get_departements_list
 
 
-def generate_cooc_graph(df_corpus, size_min, item=None):
+def generate_cooc_graph(df_corpus:pd.DataFrame, size_min:int, item=None)->nx.classes.graph.Graph:
 
     """The `generate_cooc_graph` function builds a co-occurrence networkx object `G(N,E)` 
     out of the dataframe `df_corpus` composed of two columns : 
@@ -177,7 +178,7 @@ def generate_cooc_graph(df_corpus, size_min, item=None):
         
     return G
 
-def add_long_lat_to_node(G):
+def add_long_lat_to_node(G:nx.classes.graph.Graph)->nx.classes.graph.Graph:
     
     """
     The function add_long_lat_to_node adds two attributes to the nodes : the latitude of the country capital and the
@@ -194,7 +195,7 @@ def add_long_lat_to_node(G):
     
     return G
 
-def add_total_edges_to_node(G):
+def add_total_edges_to_node(G:nx.classes.graph.Graph)->nx.classes.graph.Graph:
     
     """
     The function `add_total_edges_to_node`adds the node attribute "tot_edges" to total number
@@ -206,7 +207,7 @@ def add_total_edges_to_node(G):
     
     return G    
     
-def add_title_to_node(G, txt):
+def add_title_to_node(G:nx.classes.graph.Graph, txt:str)->nx.classes.graph.Graph:
     
     """
     add hover data attribute to node. These hover data are formatted as html text.
@@ -255,7 +256,7 @@ def add_title_to_node(G, txt):
 
     return G
 
-def create_star_graph(G,central_node_label):
+def create_star_graph(G:nx.classes.graph.Graph,central_node_label:str)->nx.classes.graph.Graph:
     
     '''
     create_star_graph create a subgraph of G by retaining only the central node which label is `central_node_label` 
@@ -273,7 +274,7 @@ def create_star_graph(G,central_node_label):
 
     return G
 
-def cooc_graph_html_plot(G,html_file, html_title, cooc_html_param=None, size="size"):
+def cooc_graph_html_plot(G:nx.classes.graph.Graph,html_file, html_title, cooc_html_param=None, size="size"):
     
     """
     Correction of pyviz-network double title by applying :
