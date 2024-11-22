@@ -40,9 +40,9 @@ def create_word_biblio(self,master, page_name, institute, bm_path, datatype):
         if not year_list:
             messagebox.showinfo("MakeWord", "Please select years")
             return
-        for year in year_list:
-            datatype_without_blank = datatype.replace(' ','')
-            master_make_document(Path(bm_path), year, institute, datatype_without_blank, "departement")
+        
+        datatype_without_blank = datatype.replace(' ','')
+        master_make_document(Path(bm_path), year_list, institute, datatype_without_blank, "departement")
         
     from brgui.main_page import AppMain
 
@@ -80,7 +80,7 @@ def create_word_biblio(self,master, page_name, institute, bm_path, datatype):
     for idx,item in enumerate(list_items):
         listbox.insert(idx, item)
     
-    listbox.selection_set(0)
+    listbox.selection_set(len(list_items)-1)
     
         # Création du boutton
     btn = tk.Button(self, text='OK', command=selected_item)

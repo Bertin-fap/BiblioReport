@@ -196,7 +196,8 @@ def builds_inst_list(publi_df:pd.DataFrame, inst:str)->list:
         inst_publi_list_dict.append(row[1].to_dict() | dict(index=idx+1))   
     return inst_publi_list_dict
     
-def make_document(bm_path:pathlib.Path, file_template:pathlib.Path, year:int, inst:str, datatype:str,perimeter:str)->None:
+def make_document(bm_path:pathlib.Path, file_template:pathlib.Path, year:int, inst:str, datatype:str,
+                perimeter:str,word_file_list:list)->None:
     
     """
     Function `make_document` builds the bibliograpy as a Word document fir the corpus
@@ -233,25 +234,30 @@ def make_document(bm_path:pathlib.Path, file_template:pathlib.Path, year:int, in
     file_article = get_filename_listeconsolideepubli(bm_path,year,datatype)
     file_output = Path(file_article).parents[0] / f'biblio_{inst}_{str(year)}_{perimeter}.docx'
     doc.save(file_output)
-    convert(file_output) # Creates a pdf file
-    messagebox.showinfo("MakeWord",f'Ce fichier Word a été créé :{file_output}')
+    word_file_list.append(str(file_output))
+    #convert(file_output) # Creates a pdf file
 
-def master_make_document(bm_path:pathlib.Path, year:int, inst:str, datatype:str, perimeter:str="all")->None:
+def master_make_document(bm_path:pathlib.Path, year_list:list, inst:str, datatype:str, perimeter:str="all")->None:
     # Load the template
     template_path = Path(__file__).parent / Path('ConfigFiles')
-   
-    if perimeter=="inst":
-        file_template = template_path / 'template_inst.docx'
-        make_document(bm_path, file_template, year, inst, datatype, perimeter)
-       
-    elif perimeter=="all":
-        file_template = template_path / 'template_all.docx'
-        make_document(bm_path, file_template, year, inst, datatype, perimeter)
-        
-    elif perimeter=="departement":
-        file_template = template_path / 'template_departement.docx'
-        departements_list = get_departements_list(bm_path, inst)
-        for departement in departements_list:
-            make_document(bm_path, file_template, year, inst, datatype, departement)
-    else:
-        print(f'unknown {perimeter}')
+    
+    word_file_list = []
+    for year in year_list:
+        if perimeter=="inst":
+            file_template = template_path / 'template_inst.docx'
+            make_document(bm_path, file_template, year, inst, datatype, perimeter, word_file_list)
+           
+        elif perimeter=="all":
+            file_template = template_path / 'template_all.docx'
+            make_document(bm_path, file_template, year, inst, datatype, perimeter, word_file_list)
+            
+        elif perimeter=="departement":
+            file_template = template_path / 'template_departement.docx'
+            departements_list = get_departements_list(bm_path, inst)
+            for departement in departements_list:
+                make_document(bm_path, file_template, year, inst, datatype, departement, word_file_list)
+        else:
+            print(f'unknown {perimeter}')
+            return
+            
+    messagebox.showinfo("MakeWord",f'Les fichiers Word ont été créés {" ".join(word_file_list)}')

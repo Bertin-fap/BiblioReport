@@ -54,7 +54,7 @@ def _launch_graph_analysis(year,bibliometer_path, datatype,institute):
     
 def _launch_graph_country(year,bibliometer_path, datatype,institute):
     central_country = 'France'
-    G = plot_graph_countries(bibliometer_path,institute,year,datatype,central_country)
+    G = plot_graph_countries(Path(bibliometer_path),institute,year,datatype,central_country)
     
 
 def create_graph_dep(self, master, page_name, institute, bibliometer_path, datatype):

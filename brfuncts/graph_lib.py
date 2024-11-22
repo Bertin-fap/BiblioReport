@@ -256,7 +256,8 @@ def add_title_to_node(G:nx.classes.graph.Graph, txt:str)->nx.classes.graph.Graph
 
     return G
 
-def create_star_graph(G:nx.classes.graph.Graph,central_node_label:str)->nx.classes.graph.Graph:
+def create_star_graph(G:nx.classes.graph.Graph,
+                    central_node_label:str)->nx.classes.graph.Graph:
     
     '''
     create_star_graph create a subgraph of G by retaining only the central node which label is `central_node_label` 
@@ -274,11 +275,15 @@ def create_star_graph(G:nx.classes.graph.Graph,central_node_label:str)->nx.class
 
     return G
 
-def cooc_graph_html_plot(G:nx.classes.graph.Graph,html_file, html_title, cooc_html_param=None, size="size"):
+def cooc_graph_html_plot(G:nx.classes.graph.Graph,html_file,
+                       html_title:str,
+                       cooc_html_param=None,
+                       size:str="size")->Network:
     
     """
     Correction of pyviz-network double title by applying :
     https://stackoverflow.com/questions/74890203/pyvis-network-has-double-heading
+    `html_title` title of the graph formatted as an html text
     """
        
     if cooc_html_param==None:
@@ -327,17 +332,19 @@ def cooc_graph_html_plot(G:nx.classes.graph.Graph,html_file, html_title, cooc_ht
     
     nt.write_html(html_file)
     webbrowser.open(html_file)
-    
     return nt
     
-def plot_graph_countries(bm_path,institute,year,datatype,central_node_label):
+def plot_graph_countries(bm_path:pathlib.Path,
+                       institute:str,
+                       year:int,datatype:str,
+                       central_node_label:str)->nx.classes.graph.Graph:
     
     """
     Function `plot_graph_countries` builds and plots a star graph with central node of label `central_node_label` 
     of the articles co-authored by the `central_node_label` country and other countries.
     """
    
-    path_base = bm_path / Path(str(year)) / Path(r'Corpus\deduplication\parsing')
+    path_base = bm_path / str(year) / r'Corpus\deduplication\parsing'
     
     filename_dat = 'countries.dat'
     countries_file_dat = path_base / Path(filename_dat)
@@ -370,7 +377,7 @@ def plot_graph_countries(bm_path,institute,year,datatype,central_node_label):
 
     return G 
     
-def build_header(institute,year,datatype,node_size_comment):
+def build_header(institute:str,year:str,datatype:str,node_size_comment:str)->str:
     
     """
     Function `build_header` builds an html formatted  title of the graph.
@@ -388,7 +395,7 @@ def build_header(institute,year,datatype,node_size_comment):
               '</p>')
     return header
     
-def plot_graph_departement(bm_path,institute,year,datatype):
+def plot_graph_departement(bm_path:pathlib.Path,institute:str,year:str,datatype:str)->None:
     
     """
     Function `plot_graph_departement` builds and plots a graph G(nodes,h). The nodes are the institute departements
