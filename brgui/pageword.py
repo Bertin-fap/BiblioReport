@@ -5,15 +5,15 @@ from tkinter import font as tkFont
 from tkinter import messagebox
 from pathlib import Path
 
+import bmgui.gui_globals as gg
+import brgui.gui_globals as ggr
+
 from bmgui.gui_utils import place_after
 from bmgui.gui_utils import place_bellow
 from bmgui.gui_utils import font_size
+from bmgui.gui_utils import last_available_years
 from bmgui.gui_utils import mm_to_px
 from brfuncts.makeword import master_make_document
-
-from bmgui.gui_utils import last_available_years
-import bmgui.gui_globals as gg
-import brgui.gui_globals as ggr
 
 def create_word_biblio(self,master, page_name, institute, bm_path, datatype):
 

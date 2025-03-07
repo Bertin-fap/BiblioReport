@@ -8,31 +8,10 @@ Title BiblioMeter.exe making
 set "TAB=   "
 
 :: Setting useful directories
-set "working_dir=%userprofile%\Pyvenv\BiblioReportTest"
+set "working_dir=%userprofile%\Pyvenv\BiblioReport"
 
 :: Setting the name of the log file to debbug the executable making
 set "LOG=%working_dir%\log.txt"
-
-:: Creating a clean %working_dir%
-echo Creating a clean %working_dir% directory
-if exist %working_dir% (
-    echo %TAB%%working_dir% exists and will be removed - Please wait...
-    rmdir /s /q %working_dir%
-    if not exist %working_dir% (
-        echo %TAB%Existing %working_dir% removed
-        ) else (
-            echo %TAB%Unable to remove existing %working_dir%
-            GOTO FIN
-            ))
-mkdir %working_dir%
-if exist %working_dir% (
-    echo ******* REPORT ON BiblioMeter EXECUTABLE MAKING ******* > %LOG%
-    echo %working_dir% successfully created >> %LOG% 
-    echo %TAB%%working_dir% successfully created
-    echo:
-) else (
-    echo %TAB%Unable to create %working_dir%
-    GOTO FIN)
 
 :: Creating a venv
 :: adapted from https://stackoverflow.com/questions/45833736/how-to-store-python-version-in-a-variable-inside-bat-file-in-an-easy-way?noredirect=1
@@ -81,7 +60,7 @@ echo The package BiblioParsing successfully installed
 echo:
 echo Installing BiblioMeter packages
 echo:
-pip install git+https://github.com/TickyWill/BiblioMeter
+pip install git+https://github.com/TickyWill/BiblioMeter.git@collab-analysis-dev
 cls
 echo The package BiblioMeter successfully installed >> %LOG%
 echo:
@@ -92,13 +71,13 @@ echo The package BiblioReport successfully installed >> %LOG%
 echo:
 echo The BiblioMeter packages successfully installed
 echo:
-echo Installing auto-py-to-exe packages
+echo Installing required libraries
 echo:
-pip install auto-py-to-exe
+pip install -r %working_dir%\requirements.txt
 cls
-echo The package auto-py-to-exe successfully installed >> %LOG%
+echo The required libraries successfully installed >> %LOG%
 echo:
-echo The package auto-py-to-exe successfully installed
+echo The required libraries successfully installed
 echo:    
 
 :: Getting the python program to launch the application

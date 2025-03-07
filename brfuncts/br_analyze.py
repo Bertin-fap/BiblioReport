@@ -1,6 +1,6 @@
 '''
-Toolbox of functions used to plot the key factors indicator (kpi) computed using the package BiblioMeter.
-Three kpi are ploted : the keywords using wordcloud; the numbers of paper coauthored with foreign countries
+Toolbox of functions used to plot the key performance indicators (kpi) computed using the package BiblioMeter.
+Three kpi are ploted: the keywords using wordcloud; the numbers of paper coauthored with foreign countries
 as a geoplot representation; the number of articles per journal represented as a barchart. 
 In this module:
     - dept stands for the departement of the institute
@@ -37,9 +37,8 @@ import plotly.graph_objs as go
 import brfuncts.functs_globals as rg
 from bmfuncts.rename_cols import set_final_col_names
 from bmfuncts.config_utils import set_org_params
-from bmfuncts.rename_cols import set_final_col_names
 
-def _set_paths(bibliometer_path,corpus_year,datatype):
+def _set_paths(bibliometer_path, corpus_year, datatype):
 
     """
     creates the dict `path_dic` ={kpi_type:kpi_path} where kpi_type stands for 
@@ -118,7 +117,7 @@ def parse_kw_filename(bibliometer_path, corpus_year, metric, extension, datatype
 def select_if_file(corpus_year,dept,bibliometer_path, datatype):
     
     """
-    Selects the excel files name of the kpi impact factor of the year `corpus_year` witch contain 
+    Selects the excel files name of the kpi impact factor of the year `corpus_year` which contains 
     the departement acronyme `dept`. Only one file should comply with this criteria
     and the full path of this file is returned.
     """

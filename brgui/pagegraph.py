@@ -26,10 +26,10 @@ from bmgui.gui_utils import font_size
 from bmgui.gui_utils import mm_to_px
 from bmgui.gui_utils import place_after
 from bmgui.gui_utils import place_bellow
-from bmfuncts.consolidate_pub_list import get_if_db
-from bmfuncts.pub_analysis import if_analysis
-from bmfuncts.pub_analysis import coupling_analysis
-from bmfuncts.pub_analysis import keywords_analysis
+from bmfuncts.add_ifs import get_if_db
+from bmfuncts.impact_factors_analysis import if_analysis
+from bmfuncts.coupling_analysis import coupling_analysis
+from bmfuncts.keywords_analysis import keywords_analysis
 from bmfuncts.config_utils import set_org_params
 from brfuncts.br_analyze import parse_kw_filename
 from brfuncts.br_analyze import create_kw_cloud

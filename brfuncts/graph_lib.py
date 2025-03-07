@@ -428,10 +428,10 @@ def plot_graph_departement(bm_path:pathlib.Path,institute:str,year:str,datatype:
     node_size_comment = "Taille des noeuds : nombre de publications du d&eacute;partement"
     header = build_header(institute,year,datatype,node_size_comment)
     
-    cooc_graph_html_plot(G,
-                         r"c:\users\franc\Temp\dep.html",
-                         header,
-                         size="size")   
+#    cooc_graph_html_plot(G,
+#                         r"c:\users\franc\Temp\dep.html",
+#                         header,
+#                         size="size")   
                          
 def plot_cooc_graph(G, item, size_min=None, node_size_ref=None):
 

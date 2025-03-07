@@ -36,7 +36,6 @@ import plotly.graph_objs as go
 import brfuncts.functs_globals as rg
 from bmfuncts.rename_cols import set_final_col_names
 from bmfuncts.config_utils import set_org_params
-from bmfuncts.rename_cols import set_final_col_names
 
 def set_paths(bibliometer_path,corpus_year,datatype):
 
